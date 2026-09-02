@@ -59,6 +59,46 @@ h1 {
   font-weight: 600;
 }
 
+.author-toggle {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.15rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(248, 250, 252, 0.9);
+  width: fit-content;
+}
+
+.author-toggle button {
+  border: 0;
+  background: transparent;
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.author-toggle button.active {
+  background: #17633e;
+  color: #fff;
+}
+
+.shop-verify-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.4rem;
+}
+
+.shop-verified {
+  margin: 0;
+  color: #17633e;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
 .actions {
   display: flex;
   gap: 0.6rem;

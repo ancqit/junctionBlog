@@ -39,18 +39,51 @@
       <p class="junction-preview">{{ junctionLabel }}</p>
     }
 
+    <div class="author-toggle" role="group" aria-label="Author type">
+      <button type="button" [class.active]="authorKind === 'person'" (click)="setAuthorKind('person')">
+        As a name
+      </button>
+      <button type="button" [class.active]="authorKind === 'shop'" (click)="setAuthorKind('shop')">
+        As a shop
+      </button>
+    </div>
+
     <label class="field">
       <span>Your input</span>
       <textarea name="body" rows="6" [(ngModel)]="body" placeholder="What happened?" required></textarea>
     </label>
-    <label class="field">
-      <span>Name</span>
-      <input name="displayName" [(ngModel)]="displayName" required />
-    </label>
-    <label class="field">
-      <span>Mobile (optional)</span>
-      <input name="phoneNumber" [(ngModel)]="phoneNumber" inputmode="numeric" maxlength="15" />
-    </label>
+
+    @if (authorKind === 'person') {
+      <label class="field">
+        <span>Name</span>
+        <input name="displayName" [(ngModel)]="displayName" required />
+      </label>
+      <label class="field">
+        <span>Mobile (optional)</span>
+        <input name="phoneNumber" [(ngModel)]="phoneNumber" inputmode="numeric" maxlength="15" />
+      </label>
+    } @else {
+      <label class="field">
+        <span>Shop phone</span>
+        <div class="shop-verify-row">
+          <input
+            name="shopPhone"
+            [(ngModel)]="shopPhone"
+            (ngModelChange)="onShopPhoneChange()"
+            inputmode="numeric"
+            maxlength="15"
+            required
+          />
+          <button type="button" class="btn btn-ghost" [disabled]="verifyingShop()" (click)="verifyShop()">
+            {{ verifyingShop() ? 'Checking…' : 'Verify' }}
+          </button>
+        </div>
+      </label>
+      @if (shopIdentity(); as shop) {
+        <p class="shop-verified">Verified shop: {{ shop.shop_name }}</p>
+      }
+    }
+
     <label class="field">
       <span>Tags</span>
       <input name="tags" [(ngModel)]="tags" placeholder="delay, pickup" />

@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { BlogComment, BlogEntry, BlogProfile } from '../models/blog.models';
+import { BlogComment, BlogEntry, BlogProfile, BlogShopIdentity } from '../models/blog.models';
 import { API_BASE_URL } from './api.config';
 
 const ENTRIES_KEY = 'jblog.entries';
@@ -84,6 +84,8 @@ export class BlogService {
     creatorNumber: string;
     nameTag: string;
     tags: string[];
+    authorKind?: 'person' | 'shop';
+    shopId?: string | null;
   }): Promise<BlogEntry> {
     try {
       const created = await firstValueFrom(
@@ -108,6 +110,8 @@ export class BlogService {
         creatorNumber: input.creatorNumber,
         nameTag: input.nameTag,
         tags: input.tags.map((tag) => tag.trim()).filter(Boolean),
+        authorKind: input.authorKind ?? 'person',
+        shopId: input.shopId ?? null,
         comments: [],
         createdAt: now,
         updatedAt: now,
@@ -125,6 +129,8 @@ export class BlogService {
       creatorName: string;
       creatorNumber: string;
       nameTag: string;
+      authorKind?: 'person' | 'shop';
+      shopId?: string | null;
     },
   ): Promise<BlogEntry | null> {
     const current = this.byNumber(blogNumber);
@@ -149,6 +155,8 @@ export class BlogService {
         creatorNumber: input.creatorNumber,
         nameTag: input.nameTag,
         createdAt: new Date().toISOString(),
+        authorKind: input.authorKind ?? 'person',
+        shopId: input.shopId ?? null,
       };
       const entry = this.normalize({
         ...current,
@@ -159,6 +167,95 @@ export class BlogService {
       this.usingLocalStore.set(true);
       return entry;
     }
+  }
+
+  async updateComment(
+    blogNumber: number,
+    commentId: string,
+    body: string,
+    owner: { creatorNumber: string; nameTag: string },
+  ): Promise<BlogEntry | null> {
+    const current = this.byNumber(blogNumber);
+    if (!current) {
+      return null;
+    }
+    try {
+      const updated = await firstValueFrom(
+        this.http.patch<BlogEntry>(`${API_BASE_URL}/blog/entries/${blogNumber}/comments/${commentId}`, {
+          body,
+          ...owner,
+        }),
+      );
+      const entry = this.normalize(updated);
+      this.upsertEntry(entry);
+      this.usingLocalStore.set(false);
+      return entry;
+    } catch (error) {
+      this.lastError.set(this.messageOf(error));
+      const comments = current.comments.map((comment) =>
+        comment.id === commentId &&
+        comment.creatorNumber === owner.creatorNumber &&
+        comment.nameTag.toLowerCase() === owner.nameTag.toLowerCase()
+          ? { ...comment, body: body.trim() }
+          : comment,
+      );
+      const entry = this.normalize({
+        ...current,
+        comments,
+        updatedAt: new Date().toISOString(),
+      });
+      this.upsertEntry(entry);
+      this.usingLocalStore.set(true);
+      return entry;
+    }
+  }
+
+  async deleteComment(
+    blogNumber: number,
+    commentId: string,
+    owner: { creatorNumber: string; nameTag: string },
+  ): Promise<BlogEntry | null> {
+    const current = this.byNumber(blogNumber);
+    if (!current) {
+      return null;
+    }
+    try {
+      const updated = await firstValueFrom(
+        this.http.delete<BlogEntry>(`${API_BASE_URL}/blog/entries/${blogNumber}/comments/${commentId}`, {
+          body: owner,
+        }),
+      );
+      const entry = this.normalize(updated);
+      this.upsertEntry(entry);
+      this.usingLocalStore.set(false);
+      return entry;
+    } catch (error) {
+      this.lastError.set(this.messageOf(error));
+      const comments = current.comments.filter(
+        (comment) =>
+          !(
+            comment.id === commentId &&
+            comment.creatorNumber === owner.creatorNumber &&
+            comment.nameTag.toLowerCase() === owner.nameTag.toLowerCase()
+          ),
+      );
+      const entry = this.normalize({
+        ...current,
+        comments,
+        updatedAt: new Date().toISOString(),
+      });
+      this.upsertEntry(entry);
+      this.usingLocalStore.set(true);
+      return entry;
+    }
+  }
+
+  async verifyShopPhone(phoneNumber: string): Promise<BlogShopIdentity> {
+    return firstValueFrom(
+      this.http.post<BlogShopIdentity>(`${API_BASE_URL}/blog/verify-shop-phone`, {
+        phone_number: phoneNumber,
+      }),
+    );
   }
 
   async updateEntry(blogNumber: number, body: string): Promise<BlogEntry | null> {

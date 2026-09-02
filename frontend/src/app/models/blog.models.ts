@@ -43,6 +43,8 @@ export interface BlogComment {
   creatorNumber: string;
   nameTag: string;
   createdAt: string;
+  authorKind?: 'person' | 'shop';
+  shopId?: string | null;
 }
 
 export interface BlogEntry {
@@ -56,9 +58,22 @@ export interface BlogEntry {
   creatorNumber: string;
   nameTag: string;
   tags: string[];
+  authorKind?: 'person' | 'shop';
+  shopId?: string | null;
   comments: BlogComment[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface BlogShopIdentity {
+  shop_id: string;
+  shop_name: string;
+  phone_number: string;
+  city?: string | null;
+  locality?: string | null;
+  creator_name: string;
+  creator_number: string;
+  name_tag: string;
 }
 
 export interface WeekEstimate {

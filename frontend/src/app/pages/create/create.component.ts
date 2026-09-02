@@ -9,8 +9,10 @@ import { BlogService } from '../../core/blog.service';
 import { IdentityService } from '../../core/identity.service';
 import { LocationsApi } from '../../core/locations.api';
 import { SessionService } from '../../core/session.service';
+import { BlogShopIdentity } from '../../models/blog.models';
 
 type ActivePicker = 'city' | 'locality' | null;
+type AuthorKind = 'person' | 'shop';
 
 @Component({
   selector: 'app-create',
@@ -28,7 +30,9 @@ export class CreateComponent implements OnInit {
   body = '';
   displayName = this.identity.identity()?.displayName ?? '';
   phoneNumber = this.identity.identity()?.phoneNumber?.replace(/^\+91/, '') ?? '';
+  shopPhone = this.identity.identity()?.phoneNumber?.replace(/^\+91/, '') ?? '';
   tags = '';
+  authorKind: AuthorKind = 'person';
 
   cities: string[] = [];
   localities: string[] = [];
@@ -42,6 +46,8 @@ export class CreateComponent implements OnInit {
   readonly pickerError = signal<string | null>(null);
   readonly error = signal('');
   readonly saving = signal(false);
+  readonly verifyingShop = signal(false);
+  readonly shopIdentity = signal<BlogShopIdentity | null>(null);
 
   ngOnInit(): void {
     this.loadCities();
@@ -60,6 +66,11 @@ export class CreateComponent implements OnInit {
       return `${this.selectedLocality}, ${this.selectedCity}`;
     }
     return this.selectedCity;
+  }
+
+  setAuthorKind(kind: AuthorKind): void {
+    this.authorKind = kind;
+    this.error.set('');
   }
 
   openCityPicker(): void {
@@ -129,6 +140,33 @@ export class CreateComponent implements OnInit {
     });
   }
 
+  onShopPhoneChange(): void {
+    this.shopIdentity.set(null);
+  }
+
+  async verifyShop(): Promise<void> {
+    const phone = this.shopPhone.trim();
+    if (!phone) {
+      this.error.set('Enter the shop phone number to verify.');
+      return;
+    }
+    this.verifyingShop.set(true);
+    this.error.set('');
+    try {
+      const shop = await this.blog.verifyShopPhone(phone);
+      this.shopIdentity.set(shop);
+      if (shop.city && shop.locality) {
+        this.selectedCity = shop.city;
+        this.selectedLocality = shop.locality;
+      }
+    } catch {
+      this.shopIdentity.set(null);
+      this.error.set('No shop found for that phone number.');
+    } finally {
+      this.verifyingShop.set(false);
+    }
+  }
+
   async submit(): Promise<void> {
     this.error.set('');
     if (!this.selectedCity || !this.selectedLocality) {
@@ -136,21 +174,43 @@ export class CreateComponent implements OnInit {
       return;
     }
     const body = this.body.trim();
-    const name = this.displayName.trim();
     if (!body) {
       this.error.set('Write the complaint or note.');
       return;
     }
-    if (!name) {
-      this.error.set('A name is enough if you skip a profile.');
-      return;
+
+    let creatorName = '';
+    let creatorNumber = '';
+    let nameTag = '';
+    let shopId: string | null = null;
+
+    if (this.authorKind === 'shop') {
+      const shop = this.shopIdentity();
+      if (!shop) {
+        this.error.set('Verify a shop phone before creating as a shop.');
+        return;
+      }
+      creatorName = shop.creator_name;
+      creatorNumber = shop.creator_number;
+      nameTag = shop.name_tag;
+      shopId = shop.shop_id;
+    } else {
+      const name = this.displayName.trim();
+      if (!name) {
+        this.error.set('A name is enough if you skip a profile.');
+        return;
+      }
+      const who = this.identity.enter(name, this.phoneNumber.trim() || null);
+      creatorName = who.displayName;
+      creatorNumber = who.userNumber;
+      nameTag = who.nameTag;
     }
-    const who = this.identity.enter(name, this.phoneNumber.trim() || null);
+
     const tags = this.tags
       .split(',')
       .map((tag) => tag.trim())
       .filter(Boolean);
-    tags.unshift(who.nameTag, this.selectedCity, this.selectedLocality);
+    tags.unshift(nameTag, this.selectedCity, this.selectedLocality);
     this.saving.set(true);
     try {
       const entry = await this.blog.createEntry({
@@ -158,10 +218,12 @@ export class CreateComponent implements OnInit {
         city: this.selectedCity,
         locality: this.selectedLocality,
         body,
-        creatorName: who.displayName,
-        creatorNumber: who.userNumber,
-        nameTag: who.nameTag,
+        creatorName,
+        creatorNumber,
+        nameTag,
         tags: [...new Set(tags)],
+        authorKind: this.authorKind,
+        shopId,
       });
       void this.router.navigate(['/b', entry.blogNumber]);
     } finally {
