@@ -1,0 +1,96 @@
+.feed {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.hero {
+  display: grid;
+  gap: 0.55rem;
+  justify-items: start;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 6vw, 3.4rem);
+}
+
+.hero .btn {
+  margin-top: 0.35rem;
+}
+
+.banner {
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.75rem;
+  background: rgba(254, 243, 199, 0.9);
+  color: #92400e;
+  font-size: 0.9rem;
+}
+
+.search input {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  background: #fff;
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.9rem;
+  padding: 1rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.row:hover {
+  transform: translateY(-1px);
+  border-color: rgba(94, 234, 212, 0.85);
+}
+
+.num {
+  color: #0f766e;
+  font-weight: 700;
+}
+
+.copy {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.copy small,
+.copy em {
+  color: #64748b;
+  font-style: normal;
+  font-size: 0.9rem;
+}
+
+.copy small {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.empty {
+  padding: 1.5rem;
+  display: grid;
+  gap: 0.6rem;
+  justify-items: start;
+}

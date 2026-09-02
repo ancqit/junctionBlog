@@ -1,0 +1,11 @@
+<section class="cli" aria-label="Comment command line">
+  <div class="cli__log">
+    @for (line of log(); track $index) {
+      <p class="cli__line cli__line--{{ line.kind }}">{{ line.text }}</p>
+    }
+  </div>
+  <form class="cli__prompt" (ngSubmit)="submit()">
+    <label for="comment-cmd">{{ prompt() }}</label>
+    <input id="comment-cmd" name="command" [(ngModel)]="command" autocomplete="off" />
+  </form>
+</section>

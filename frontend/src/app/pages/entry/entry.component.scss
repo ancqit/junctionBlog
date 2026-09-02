@@ -1,45 +1,36 @@
-:host {
-  display: block;
-  min-height: 100dvh;
-}
-
 .entry {
-  min-height: 100dvh;
-  padding: 1rem;
-  background: #020804;
-  color: #7dffb3;
-  font-family: 'IBM Plex Mono', ui-monospace, monospace;
   display: grid;
-  align-content: start;
   gap: 0.7rem;
+  max-width: 42rem;
 }
 
-a {
-  color: #c8ffd8;
+h1,
+h2 {
+  margin: 0;
 }
 
-textarea,
-button,
-pre {
-  font: inherit;
-  color: inherit;
-  background: #03140c;
-  border: 1px solid #145c38;
-  padding: 0.7rem;
+.meta,
+.share {
+  margin: 0;
 }
 
-pre {
+.body {
+  padding: 1.1rem;
   white-space: pre-wrap;
 }
 
-.tags,
-.share {
-  color: #9ad7b2;
-  font-size: 0.85rem;
+.comments {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
 }
 
-.share {
-  display: flex;
-  gap: 0.8rem;
-  flex-wrap: wrap;
+.comments li {
+  padding: 0.8rem 1rem;
+}
+
+.comments p {
+  margin: 0.35rem 0 0;
 }

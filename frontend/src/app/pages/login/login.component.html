@@ -1,35 +1,41 @@
 <section class="login">
-  <a routerLink="/">back to console</a>
-  <h1>otp login via junctionBack</h1>
-  <p>optional. you can post from the console with only a name.</p>
+  <p class="kicker">optional</p>
+  <h1>OTP via junctionBack</h1>
+  <p class="muted">You can create a blog with only a name. OTP links a mobile number.</p>
 
   @if (step() === 'details') {
-    <form (ngSubmit)="sendOtp()">
-      <label>name
+    <form class="card form" (ngSubmit)="sendOtp()">
+      <label class="field">
+        <span>Name</span>
         <input name="displayName" [(ngModel)]="displayName" />
       </label>
-      <label>mobile
-        <span>+91</span>
-        <input name="phoneNumber" [(ngModel)]="phoneNumber" maxlength="10" inputmode="numeric" />
+      <label class="field">
+        <span>Mobile</span>
+        <input name="phoneNumber" [(ngModel)]="phoneNumber" maxlength="10" inputmode="numeric" placeholder="10-digit" />
       </label>
       @if (error()) {
         <p class="err">{{ error() }}</p>
       }
-      <button type="submit" [disabled]="submitting()">{{ submitting() ? 'sending…' : 'send otp' }}</button>
+      <button class="btn btn-primary" type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Sending…' : 'Send OTP' }}
+      </button>
     </form>
   } @else {
-    <form (ngSubmit)="verifyOtp()">
-      <p>code sent to {{ e164Phone }}</p>
+    <form class="card form" (ngSubmit)="verifyOtp()">
+      <p class="muted">Code sent to {{ e164Phone }}</p>
       @if (debugOtp()) {
-        <p>debug otp {{ debugOtp() }}</p>
+        <p>Debug OTP {{ debugOtp() }}</p>
       }
-      <label>otp
+      <label class="field">
+        <span>OTP</span>
         <input name="otp" [(ngModel)]="otp" maxlength="6" inputmode="numeric" />
       </label>
       @if (error()) {
         <p class="err">{{ error() }}</p>
       }
-      <button type="submit" [disabled]="submitting()">{{ submitting() ? 'verifying…' : 'verify' }}</button>
+      <button class="btn btn-primary" type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Verifying…' : 'Verify' }}
+      </button>
     </form>
   }
 </section>

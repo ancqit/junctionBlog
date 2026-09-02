@@ -1,24 +1,31 @@
 <section class="entry">
-  <a routerLink="/">back to console</a>
+  <a routerLink="/">Blogs</a>
   @if (entry(); as item) {
-    <h1>blog {{ item.blogNumber }}</h1>
-    <p>junction {{ item.junction }} · {{ item.nameTag }} · user {{ item.creatorNumber }}</p>
-    <p class="tags">{{ item.tags.join(' · ') }}</p>
-    @if (canEdit) {
-      <textarea [(ngModel)]="body" rows="8"></textarea>
-      <button type="button" (click)="save()">save content</button>
-    } @else {
-      <pre>{{ item.body }}</pre>
-    }
-    <p class="share">
-      share
+    <p class="kicker">blog {{ item.blogNumber }}</p>
+    <h1>{{ item.junction }}</h1>
+    <p class="meta">{{ item.nameTag }} · user {{ item.creatorNumber }}</p>
+    <article class="card body">{{ item.body }}</article>
+    <p class="share muted">
+      Share
       <a [href]="today + '?blog=' + item.blogNumber">junction.today</a>
+      ·
       <a [href]="website + '?blog=' + item.blogNumber">junction.website</a>
     </p>
-    @if (message()) {
-      <p>{{ message() }}</p>
+
+    <h2>Comments</h2>
+    @if (!item.comments.length) {
+      <p class="muted">None yet. Use the command line to append one.</p>
     }
+    <ul class="comments">
+      @for (comment of item.comments; track comment.id) {
+        <li class="card">
+          <strong>{{ comment.nameTag }}</strong>
+          <p>{{ comment.body }}</p>
+        </li>
+      }
+    </ul>
+    <app-comment-cli (comment)="onComment($event)" />
   } @else {
-    <p>blog not found. search the number from the console.</p>
+    <p>Blog not found.</p>
   }
 </section>

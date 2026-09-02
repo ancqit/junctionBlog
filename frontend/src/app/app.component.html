@@ -1,1 +1,18 @@
-<router-outlet />
+<header class="top">
+  <a class="brand" routerLink="/">
+    <img src="favicon.svg" width="32" height="32" alt="" />
+    <span>
+      <strong>Junction</strong>
+      <small>blog</small>
+    </span>
+  </a>
+  <nav>
+    <a routerLink="/" routerLinkActive="on" [routerLinkActiveOptions]="{ exact: true }">Blogs</a>
+    <a routerLink="/profile" routerLinkActive="on">Profile</a>
+    <a routerLink="/login" routerLinkActive="on">OTP</a>
+  </nav>
+  <span class="who">{{ identity.identity()?.nameTag || 'guest' }}</span>
+</header>
+<main>
+  <router-outlet />
+</main>

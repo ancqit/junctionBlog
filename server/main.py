@@ -3,6 +3,7 @@
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 import json
 
 from fastapi import FastAPI, HTTPException, Query, status
@@ -55,9 +56,26 @@ class BlogEntryPatch(BaseModel):
     body: str = Field(min_length=1, max_length=8000)
 
 
+class BlogComment(BaseModel):
+    id: str
+    body: str
+    creatorName: str
+    creatorNumber: str
+    nameTag: str
+    createdAt: datetime
+
+
+class BlogCommentCreate(BaseModel):
+    body: str = Field(min_length=1, max_length=4000)
+    creatorName: str = Field(min_length=1, max_length=100)
+    creatorNumber: str = Field(min_length=1, max_length=16)
+    nameTag: str = Field(min_length=1, max_length=48)
+
+
 class BlogEntry(BlogEntryCreate):
     id: str
     blogNumber: int
+    comments: list[BlogComment] = Field(default_factory=list)
     createdAt: datetime
     updatedAt: datetime
 
@@ -100,6 +118,7 @@ def create_entry(payload: BlogEntryCreate) -> BlogEntry:
         **payload.model_dump(),
         "id": f"local-{store['blogSeq']}",
         "blogNumber": store["blogSeq"],
+        "comments": [],
         "createdAt": now.isoformat(),
         "updatedAt": now.isoformat(),
     }
@@ -144,6 +163,23 @@ def update_entry(blog_number: int, payload: BlogEntryPatch) -> BlogEntry:
         if entry.get("blogNumber") == blog_number:
             entry["body"] = payload.body.strip()
             entry["updatedAt"] = datetime.now(timezone.utc).isoformat()
+            save_store(store)
+            return BlogEntry(**entry)
+    raise HTTPException(status_code=404, detail="Blog entry not found")
+
+
+@app.post("/blog/entries/{blog_number}/comments", response_model=BlogEntry, status_code=status.HTTP_201_CREATED)
+def add_comment(blog_number: int, payload: BlogCommentCreate) -> BlogEntry:
+    store = load_store()
+    for entry in store.get("entries") or []:
+        if entry.get("blogNumber") == blog_number:
+            comment = {
+                "id": str(uuid4()),
+                **payload.model_dump(),
+                "createdAt": datetime.now(timezone.utc).isoformat(),
+            }
+            entry.setdefault("comments", []).append(comment)
+            entry["updatedAt"] = comment["createdAt"]
             save_store(store)
             return BlogEntry(**entry)
     raise HTTPException(status_code=404, detail="Blog entry not found")

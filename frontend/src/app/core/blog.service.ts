@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { BlogEntry, BlogProfile } from '../models/blog.models';
+import { BlogComment, BlogEntry, BlogProfile } from '../models/blog.models';
 import { API_BASE_URL } from './api.config';
 
 const ENTRIES_KEY = 'jblog.entries';
@@ -11,9 +11,10 @@ const BLOG_SEQ_KEY = 'jblog.blogSeq';
 @Injectable({ providedIn: 'root' })
 export class BlogService {
   private readonly http = inject(HttpClient);
-  readonly entries = signal<BlogEntry[]>(this.readEntries());
+  readonly entries = signal<BlogEntry[]>(this.normalizeAll(this.readEntries()));
   readonly profiles = signal<BlogProfile[]>(this.readProfiles());
   readonly usingLocalStore = signal(true);
+  readonly lastError = signal('');
 
   async refresh(): Promise<void> {
     try {
@@ -21,9 +22,11 @@ export class BlogService {
         this.http.get<BlogEntry[]>(`${API_BASE_URL}/blog/entries`),
       );
       if (Array.isArray(remote)) {
-        this.entries.set(remote);
-        this.writeEntries(remote);
+        const entries = this.normalizeAll(remote);
+        this.entries.set(entries);
+        this.writeEntries(entries);
         this.usingLocalStore.set(false);
+        this.lastError.set('');
       }
     } catch {
       this.usingLocalStore.set(true);
@@ -53,7 +56,10 @@ export class BlogService {
           entry.body.toLowerCase().includes(q.toLowerCase()) ||
           entry.tags.some((item) => item.toLowerCase().includes(q.toLowerCase())) ||
           entry.nameTag.toLowerCase().includes(q.toLowerCase());
-        const tagHit = !tag || entry.nameTag.toLowerCase().includes(tag) || entry.creatorName.toLowerCase().includes(tag);
+        const tagHit =
+          !tag ||
+          entry.nameTag.toLowerCase().includes(tag) ||
+          entry.creatorName.toLowerCase().includes(tag);
         return (numberHit || textHit) && tagHit;
       })
       .sort((a, b) => b.blogNumber - a.blogNumber);
@@ -75,19 +81,19 @@ export class BlogService {
     nameTag: string;
     tags: string[];
   }): Promise<BlogEntry> {
-    const payload: Omit<BlogEntry, 'id' | 'createdAt' | 'updatedAt' | 'blogNumber'> & {
-      blogNumber?: number;
-    } = { ...input };
     try {
       const created = await firstValueFrom(
-        this.http.post<BlogEntry>(`${API_BASE_URL}/blog/entries`, payload),
+        this.http.post<BlogEntry>(`${API_BASE_URL}/blog/entries`, input),
       );
-      this.upsertEntry(created);
+      const entry = this.normalize(created);
+      this.upsertEntry(entry);
       this.usingLocalStore.set(false);
-      return created;
-    } catch {
+      this.lastError.set('');
+      return entry;
+    } catch (error) {
+      this.lastError.set(this.messageOf(error));
       const now = new Date().toISOString();
-      const local: BlogEntry = {
+      const local = this.normalize({
         id: crypto.randomUUID(),
         blogNumber: this.nextBlogNumber(),
         junction: input.junction.trim(),
@@ -96,12 +102,56 @@ export class BlogService {
         creatorNumber: input.creatorNumber,
         nameTag: input.nameTag,
         tags: input.tags.map((tag) => tag.trim()).filter(Boolean),
+        comments: [],
         createdAt: now,
         updatedAt: now,
-      };
+      });
       this.upsertEntry(local);
       this.usingLocalStore.set(true);
       return local;
+    }
+  }
+
+  async addComment(
+    blogNumber: number,
+    input: {
+      body: string;
+      creatorName: string;
+      creatorNumber: string;
+      nameTag: string;
+    },
+  ): Promise<BlogEntry | null> {
+    const current = this.byNumber(blogNumber);
+    if (!current) {
+      return null;
+    }
+    try {
+      const updated = await firstValueFrom(
+        this.http.post<BlogEntry>(`${API_BASE_URL}/blog/entries/${blogNumber}/comments`, input),
+      );
+      const entry = this.normalize(updated);
+      this.upsertEntry(entry);
+      this.usingLocalStore.set(false);
+      this.lastError.set('');
+      return entry;
+    } catch (error) {
+      this.lastError.set(this.messageOf(error));
+      const comment: BlogComment = {
+        id: crypto.randomUUID(),
+        body: input.body.trim(),
+        creatorName: input.creatorName.trim(),
+        creatorNumber: input.creatorNumber,
+        nameTag: input.nameTag,
+        createdAt: new Date().toISOString(),
+      };
+      const entry = this.normalize({
+        ...current,
+        comments: [...current.comments, comment],
+        updatedAt: new Date().toISOString(),
+      });
+      this.upsertEntry(entry);
+      this.usingLocalStore.set(true);
+      return entry;
     }
   }
 
@@ -114,14 +164,15 @@ export class BlogService {
       const updated = await firstValueFrom(
         this.http.patch<BlogEntry>(`${API_BASE_URL}/blog/entries/${blogNumber}`, { body }),
       );
-      this.upsertEntry(updated);
-      return updated;
+      const entry = this.normalize(updated);
+      this.upsertEntry(entry);
+      return entry;
     } catch {
-      const updated: BlogEntry = {
+      const updated = this.normalize({
         ...current,
         body: body.trim(),
         updatedAt: new Date().toISOString(),
-      };
+      });
       this.upsertEntry(updated);
       this.usingLocalStore.set(true);
       return updated;
@@ -143,6 +194,14 @@ export class BlogService {
     }
   }
 
+  private normalize(entry: BlogEntry): BlogEntry {
+    return { ...entry, comments: entry.comments ?? [] };
+  }
+
+  private normalizeAll(entries: BlogEntry[]): BlogEntry[] {
+    return entries.map((entry) => this.normalize(entry));
+  }
+
   private upsertEntry(entry: BlogEntry): void {
     const next = [entry, ...this.entries().filter((item) => item.blogNumber !== entry.blogNumber)];
     this.entries.set(next);
@@ -160,6 +219,13 @@ export class BlogService {
     const next = current + 1;
     localStorage.setItem(BLOG_SEQ_KEY, String(next));
     return next;
+  }
+
+  private messageOf(error: unknown): string {
+    if (error && typeof error === 'object' && 'message' in error) {
+      return String((error as { message: string }).message);
+    }
+    return 'junctionBack /blog is not available yet';
   }
 
   private readEntries(): BlogEntry[] {

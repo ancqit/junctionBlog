@@ -1,0 +1,37 @@
+<section class="create">
+  <p class="kicker">new entry</p>
+  <h1>Create a blog</h1>
+  <p class="muted">Always related to a junction. Name is enough — profile is optional.</p>
+
+  <form class="card form" (ngSubmit)="submit()">
+    <label class="field">
+      <span>Junction</span>
+      <input name="junction" [(ngModel)]="junction" placeholder="market-east" required />
+    </label>
+    <label class="field">
+      <span>Your input</span>
+      <textarea name="body" rows="6" [(ngModel)]="body" placeholder="What happened?" required></textarea>
+    </label>
+    <label class="field">
+      <span>Name</span>
+      <input name="displayName" [(ngModel)]="displayName" required />
+    </label>
+    <label class="field">
+      <span>Mobile (optional)</span>
+      <input name="phoneNumber" [(ngModel)]="phoneNumber" inputmode="numeric" maxlength="15" />
+    </label>
+    <label class="field">
+      <span>Tags</span>
+      <input name="tags" [(ngModel)]="tags" placeholder="delay, pickup" />
+    </label>
+    @if (error()) {
+      <p class="err">{{ error() }}</p>
+    }
+    <div class="actions">
+      <a class="btn btn-ghost" routerLink="/">Cancel</a>
+      <button class="btn btn-primary" type="submit" [disabled]="saving()">
+        {{ saving() ? 'Saving…' : 'Create a blog' }}
+      </button>
+    </div>
+  </form>
+</section>
