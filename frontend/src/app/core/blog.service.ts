@@ -53,6 +53,8 @@ export class BlogService {
         const textHit =
           !q ||
           entry.junction.toLowerCase().includes(q.toLowerCase()) ||
+          (entry.city ?? '').toLowerCase().includes(q.toLowerCase()) ||
+          (entry.locality ?? '').toLowerCase().includes(q.toLowerCase()) ||
           entry.body.toLowerCase().includes(q.toLowerCase()) ||
           entry.tags.some((item) => item.toLowerCase().includes(q.toLowerCase())) ||
           entry.nameTag.toLowerCase().includes(q.toLowerCase());
@@ -75,6 +77,8 @@ export class BlogService {
 
   async createEntry(input: {
     junction: string;
+    city?: string;
+    locality?: string;
     body: string;
     creatorName: string;
     creatorNumber: string;
@@ -97,6 +101,8 @@ export class BlogService {
         id: crypto.randomUUID(),
         blogNumber: this.nextBlogNumber(),
         junction: input.junction.trim(),
+        city: input.city?.trim(),
+        locality: input.locality?.trim(),
         body: input.body.trim(),
         creatorName: input.creatorName.trim(),
         creatorNumber: input.creatorNumber,

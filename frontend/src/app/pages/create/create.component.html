@@ -1,13 +1,44 @@
 <section class="create">
   <p class="kicker">new entry</p>
   <h1>Create a blog</h1>
-  <p class="muted">Always related to a junction. Name is enough — profile is optional.</p>
+  <p class="muted">Always for a junction. Choose city and locality the same way as junction.today.</p>
 
   <form class="card form" (ngSubmit)="submit()">
-    <label class="field">
-      <span>Junction</span>
-      <input name="junction" [(ngModel)]="junction" placeholder="market-east" required />
-    </label>
+    <div class="picker-field">
+      <span class="field-label">City</span>
+      @if (selectedCity) {
+        <p class="selected-value">{{ selectedCity }}</p>
+      }
+      <button type="button" class="add-action-button" (click)="openCityPicker()">
+        {{ citiesLoading() ? 'Loading cities…' : 'Add your city' }}
+      </button>
+    </div>
+
+    <div class="picker-field">
+      <span class="field-label">Locality</span>
+      @if (selectedLocality) {
+        <p class="selected-value">{{ selectedLocality }}</p>
+      }
+      <button
+        type="button"
+        class="add-action-button"
+        [disabled]="!selectedCity || localitiesLoading()"
+        (click)="openLocalityPicker()"
+      >
+        @if (localitiesLoading()) {
+          Loading localities…
+        } @else if (selectedCity) {
+          {{ selectedCity }} Junction — pick locality
+        } @else {
+          Add your locality
+        }
+      </button>
+    </div>
+
+    @if (junctionLabel) {
+      <p class="junction-preview">{{ junctionLabel }}</p>
+    }
+
     <label class="field">
       <span>Your input</span>
       <textarea name="body" rows="6" [(ngModel)]="body" placeholder="What happened?" required></textarea>
@@ -35,3 +66,30 @@
     </div>
   </form>
 </section>
+
+@if (activePicker() === 'city') {
+  <app-location-picker-modal
+    title="Add your city"
+    addSectionLabel="Add a new city"
+    [options]="cityOptions"
+    [loading]="citiesLoading()"
+    emptyMessage="No cities available."
+    (picked)="onCityPicked($event)"
+    (dismissed)="closePicker()"
+  />
+}
+
+@if (activePicker() === 'locality') {
+  <app-location-picker-modal
+    title="Add your locality"
+    addSectionLabel="Add a new locality"
+    [options]="localityOptions"
+    [loading]="localitiesLoading()"
+    [validating]="addingJunction()"
+    [errorMessage]="pickerError()"
+    emptyMessage="No localities for this city."
+    (picked)="onLocalityPicked($event)"
+    (dismissed)="closePicker()"
+    (errorCleared)="pickerError.set(null)"
+  />
+}

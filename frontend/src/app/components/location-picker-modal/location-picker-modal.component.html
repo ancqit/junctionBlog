@@ -1,0 +1,66 @@
+<div class="picker-backdrop" role="dialog" aria-modal="true" [attr.aria-label]="title()" (click)="onDismiss()">
+  <section class="picker-card" (click)="$event.stopPropagation()">
+    <header class="picker-header">
+      <h2 class="picker-title">{{ title() }}</h2>
+      <button type="button" class="picker-close" aria-label="Close" (click)="onDismiss()">×</button>
+    </header>
+
+    <div class="picker-body">
+      <label class="picker-search">
+        <span class="visually-hidden">Search</span>
+        <input
+          type="search"
+          placeholder="Search"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onSearchChange($event)"
+        />
+      </label>
+
+      @if (loading()) {
+        <p class="picker-status">Loading...</p>
+      } @else if (options().length === 0) {
+        <p class="picker-status">{{ emptyMessage() }}</p>
+      } @else {
+        <div class="picker-tags" role="listbox" [attr.aria-label]="title()">
+          @for (option of filteredOptions(); track option.id) {
+            <button type="button" class="picker-tag" role="option" (click)="onPick(option.label)">
+              {{ option.label }}
+            </button>
+          }
+        </div>
+        @if (showNoMatches()) {
+          <p class="picker-hint">No matches for "{{ searchQuery() }}".</p>
+        }
+      }
+
+      @if (allowAdd()) {
+        <section class="picker-add">
+          <p class="picker-add-label">{{ addSectionLabel() }}</p>
+          @if (errorMessage()) {
+            <p class="picker-error">{{ errorMessage() }}</p>
+          }
+          <div class="picker-add-row">
+            <input
+              type="text"
+              [placeholder]="addSectionLabel()"
+              [ngModel]="newEntryName()"
+              (ngModelChange)="onNewEntryChange($event)"
+            />
+            <button
+              type="button"
+              class="picker-add-button"
+              [disabled]="!newEntryName().trim() || validating()"
+              (click)="onAddCustom()"
+            >
+              @if (validating()) {
+                Checking...
+              } @else {
+                Add
+              }
+            </button>
+          </div>
+        </section>
+      }
+    </div>
+  </section>
+</div>

@@ -24,6 +24,8 @@ class DayTemplate(BaseModel):
 
 class BlogEntryCreate(BaseModel):
     junction: str = Field(min_length=1, max_length=160)
+    city: str | None = Field(default=None, max_length=80)
+    locality: str | None = Field(default=None, max_length=120)
     body: str = Field(min_length=1, max_length=8000)
     creatorName: str = Field(min_length=1, max_length=100)
     creatorNumber: str = Field(min_length=1, max_length=16)
@@ -108,6 +110,8 @@ def serialize_entry(document: dict) -> BlogEntry:
         id=str(document["_id"]),
         blogNumber=document["blogNumber"],
         junction=document["junction"],
+        city=document.get("city"),
+        locality=document.get("locality"),
         body=document["body"],
         creatorName=document["creatorName"],
         creatorNumber=document["creatorNumber"],
@@ -146,6 +150,8 @@ def list_entries(
         needle = q.strip()
         query["$or"] = [
             {"junction": {"$regex": needle, "$options": "i"}},
+            {"city": {"$regex": needle, "$options": "i"}},
+            {"locality": {"$regex": needle, "$options": "i"}},
             {"body": {"$regex": needle, "$options": "i"}},
             {"nameTag": {"$regex": needle, "$options": "i"}},
             {"tags": {"$regex": needle, "$options": "i"}},

@@ -49,6 +49,8 @@ export interface BlogEntry {
   id: string;
   blogNumber: number;
   junction: string;
+  city?: string;
+  locality?: string;
   body: string;
   creatorName: string;
   creatorNumber: string;

@@ -37,6 +37,8 @@ class DayTemplate(BaseModel):
 
 class BlogEntryCreate(BaseModel):
     junction: str = Field(min_length=1, max_length=160)
+    city: str | None = Field(default=None, max_length=80)
+    locality: str | None = Field(default=None, max_length=120)
     body: str = Field(min_length=1, max_length=8000)
     creatorName: str = Field(min_length=1, max_length=100)
     creatorNumber: str = Field(min_length=1, max_length=16)
@@ -139,7 +141,7 @@ def list_entries(
     for entry in entries:
         if needle:
             number_hit = needle.isdigit() and str(entry.get("blogNumber")) == needle
-            text_hit = needle in str(entry.get("junction", "")).lower() or needle in str(entry.get("body", "")).lower() or needle in str(entry.get("nameTag", "")).lower()
+            text_hit = needle in str(entry.get("junction", "")).lower() or needle in str(entry.get("city", "")).lower() or needle in str(entry.get("locality", "")).lower() or needle in str(entry.get("body", "")).lower() or needle in str(entry.get("nameTag", "")).lower()
             if not (number_hit or text_hit):
                 continue
         if tag_n and tag_n not in str(entry.get("nameTag", "")).lower() and tag_n not in str(entry.get("creatorName", "")).lower():
