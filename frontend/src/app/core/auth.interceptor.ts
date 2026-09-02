@@ -11,7 +11,14 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
     request.method === 'GET' &&
     (request.url.includes('/blog/entries') || request.url.includes('/blog/profiles'));
 
-  if (!isApiCall || !tokens.accessToken || isAuthCall || isPublicBlog) {
+  if (
+    !isApiCall ||
+    !tokens.accessToken ||
+    isAuthCall ||
+    isPublicBlog ||
+    request.url.includes('/locations/') ||
+    request.url.includes('/session')
+  ) {
     return next(request);
   }
 

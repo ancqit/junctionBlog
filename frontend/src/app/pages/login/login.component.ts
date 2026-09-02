@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { RECAPTCHA_TOKEN_PLACEHOLDER } from '../../core/api.config';
 import { AuthService } from '../../core/auth.service';
@@ -8,7 +8,7 @@ import { IdentityService } from '../../core/identity.service';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })

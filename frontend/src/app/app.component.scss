@@ -1,5 +1,66 @@
-/* App shell — page layouts own their atmosphere */
 :host {
   display: block;
   min-height: 100dvh;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  background: rgba(238, 242, 246, 0.86);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: #0f172a;
+  text-decoration: none;
+}
+
+.brand strong {
+  display: block;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.brand small {
+  display: block;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #0f766e;
+  font-weight: 600;
+}
+
+nav {
+  display: flex;
+  gap: 0.9rem;
+  margin-left: auto;
+}
+
+nav a {
+  color: #475569;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+nav a.on,
+nav a:hover {
+  color: #0f766e;
+}
+
+.who {
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+main {
+  width: min(72rem, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 1.5rem 0 3rem;
 }

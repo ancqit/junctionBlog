@@ -1,0 +1,47 @@
+.cli {
+  border-radius: 1rem;
+  background: #0f2f22;
+  color: #99f6e4;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  overflow: hidden;
+}
+
+.cli__log {
+  max-height: 12rem;
+  overflow: auto;
+  padding: 0.85rem;
+  font-size: 0.85rem;
+}
+
+.cli__line {
+  margin: 0 0 0.3rem;
+  white-space: pre-wrap;
+}
+
+.cli__line--in::before {
+  content: '> ';
+}
+
+.cli__line--err {
+  color: #fecaca;
+}
+
+.cli__prompt {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.7rem 0.85rem;
+  border-top: 1px solid rgba(153, 246, 228, 0.25);
+}
+
+.cli__prompt label {
+  color: #5eead4;
+}
+
+.cli__prompt input {
+  border: 0;
+  background: transparent;
+  color: #ecfdf5;
+  outline: none;
+}

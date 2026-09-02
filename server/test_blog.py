@@ -31,3 +31,14 @@ def test_create_and_search_entry(tmp_path, monkeypatch):
     assert found.json()[0]["junction"] == "market-east"
     tagged = client.get("/blog/entries", params={"tag": "ankit#1042"})
     assert tagged.json()[0]["blogNumber"] == number
+    commented = client.post(
+        f"/blog/entries/{number}/comments",
+        json={
+            "body": "still closed",
+            "creatorName": "ria",
+            "creatorNumber": "2211",
+            "nameTag": "ria#2211",
+        },
+    )
+    assert commented.status_code == 201
+    assert commented.json()["comments"][0]["body"] == "still closed"

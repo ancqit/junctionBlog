@@ -3,8 +3,11 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () =>
-      import('./pages/console/console.component').then((m) => m.ConsoleComponent),
+    loadComponent: () => import('./pages/feed/feed.component').then((m) => m.FeedComponent),
+  },
+  {
+    path: 'create',
+    loadComponent: () => import('./pages/create/create.component').then((m) => m.CreateComponent),
   },
   {
     path: 'profile',
@@ -13,13 +16,11 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    loadComponent: () =>
-      import('./pages/login/login.component').then((m) => m.LoginComponent),
+    loadComponent: () => import('./pages/login/login.component').then((m) => m.LoginComponent),
   },
   {
     path: 'b/:number',
-    loadComponent: () =>
-      import('./pages/entry/entry.component').then((m) => m.EntryComponent),
+    loadComponent: () => import('./pages/entry/entry.component').then((m) => m.EntryComponent),
   },
   { path: '**', redirectTo: '' },
 ];

@@ -1,0 +1,46 @@
+<section class="feed">
+  <div class="hero">
+    <p class="kicker">junction.today · junction.website</p>
+    <h1>Blogs</h1>
+    <p class="muted">Complaints and notes for a junction. Search by blog number or nametag.</p>
+    <a class="btn btn-primary" routerLink="/create">Create a blog</a>
+  </div>
+
+  @if (usingLocal) {
+    <p class="banner">Saving locally until junctionBack `/blog` is live. Same API shape is ready to merge.</p>
+  }
+
+  <label class="search">
+    <span class="sr">Search</span>
+    <input
+      type="search"
+      name="query"
+      [(ngModel)]="query"
+      (ngModelChange)="applySearch()"
+      placeholder="Blog number or nametag"
+    />
+  </label>
+
+  @if (!blogs().length) {
+    <article class="card empty">
+      <h2>No blogs yet</h2>
+      <p class="muted">Create the first one for a junction.</p>
+      <a class="btn btn-primary" routerLink="/create">Create a blog</a>
+    </article>
+  } @else {
+    <ul class="list">
+      @for (item of blogs(); track item.blogNumber) {
+        <li>
+          <a class="card row" [routerLink]="['/b', item.blogNumber]">
+            <span class="num">#{{ item.blogNumber }}</span>
+            <span class="copy">
+              <strong>{{ item.junction }}</strong>
+              <small>{{ item.body }}</small>
+              <em>{{ item.nameTag }} · {{ item.comments.length }} {{ item.comments.length === 1 ? 'comment' : 'comments' }}</em>
+            </span>
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</section>

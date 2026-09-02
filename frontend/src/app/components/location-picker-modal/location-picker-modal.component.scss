@@ -1,0 +1,142 @@
+.picker-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.2);
+  backdrop-filter: blur(4px);
+}
+
+.picker-card {
+  width: min(100%, 26rem);
+  max-height: min(80vh, 32rem);
+  display: grid;
+  grid-template-rows: auto 1fr;
+  border-radius: 1.25rem;
+  background: rgba(15, 23, 42, 0.18);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.22);
+  overflow: hidden;
+}
+
+.picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1rem 0.75rem;
+}
+
+.picker-title {
+  margin: 0;
+  font-family: Inter, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(153, 246, 228, 0.92);
+}
+
+.picker-close {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 0.5rem;
+  background: rgba(15, 23, 42, 0.42);
+  color: #f8fafc;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.picker-body {
+  overflow: auto;
+  padding: 0 1rem 1rem;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.picker-search input,
+.picker-add-row input {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 0.75rem;
+  background: rgba(15, 23, 42, 0.42);
+  color: #f8fafc;
+}
+
+.picker-status,
+.picker-hint {
+  margin: 0;
+  color: rgba(226, 232, 240, 0.82);
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+.picker-error {
+  margin: 0;
+  color: rgba(252, 165, 165, 0.95);
+  font-size: 0.85rem;
+}
+
+.picker-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.picker-tag {
+  padding: 0.45rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.42);
+  color: #f8fafc;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.picker-add {
+  display: grid;
+  gap: 0.5rem;
+  padding-top: 0.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.picker-add-label {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(153, 246, 228, 0.92);
+}
+
+.picker-add-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+}
+
+.picker-add-button {
+  padding: 0.7rem 0.9rem;
+  border: 0;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.picker-add-button:disabled {
+  opacity: 0.55;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}

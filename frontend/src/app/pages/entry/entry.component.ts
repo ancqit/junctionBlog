@@ -1,52 +1,45 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { CommentCliComponent } from '../../components/comment-cli/comment-cli.component';
 import { BlogService } from '../../core/blog.service';
-import { IdentityService } from '../../core/identity.service';
 import { JUNCTION_TODAY, JUNCTION_WEBSITE } from '../../core/api.config';
 import { BlogEntry } from '../../models/blog.models';
 
 @Component({
   selector: 'app-entry',
-  imports: [FormsModule, RouterLink],
+  imports: [RouterLink, CommentCliComponent],
   templateUrl: './entry.component.html',
   styleUrl: './entry.component.scss',
 })
 export class EntryComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly blog = inject(BlogService);
-  private readonly identity = inject(IdentityService);
 
   readonly entry = signal<BlogEntry | null>(null);
-  readonly message = signal('');
-  body = '';
-
   readonly today = JUNCTION_TODAY;
   readonly website = JUNCTION_WEBSITE;
 
   ngOnInit(): void {
-    const raw = this.route.snapshot.paramMap.get('number');
-    const blogNumber = Number(raw);
-    const found = this.blog.byNumber(blogNumber) ?? null;
-    this.entry.set(found);
-    this.body = found?.body ?? '';
+    const blogNumber = Number(this.route.snapshot.paramMap.get('number'));
+    void this.blog.refresh().then(() => {
+      this.entry.set(this.blog.byNumber(blogNumber) ?? null);
+    });
+    this.entry.set(this.blog.byNumber(blogNumber) ?? null);
   }
 
-  get canEdit(): boolean {
-    const who = this.identity.identity();
-    const entry = this.entry();
-    return Boolean(who && entry && who.userNumber === entry.creatorNumber);
-  }
-
-  async save(): Promise<void> {
-    const entry = this.entry();
-    if (!entry) {
+  async onComment(payload: {
+    body: string;
+    creatorName: string;
+    creatorNumber: string;
+    nameTag: string;
+  }): Promise<void> {
+    const current = this.entry();
+    if (!current) {
       return;
     }
-    const updated = await this.blog.updateEntry(entry.blogNumber, this.body);
+    const updated = await this.blog.addComment(current.blogNumber, payload);
     if (updated) {
       this.entry.set(updated);
-      this.message.set('updated. junction.today / junction.website can deep-link this number to add content.');
     }
   }
 }
