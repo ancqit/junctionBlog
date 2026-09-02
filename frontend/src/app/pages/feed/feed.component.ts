@@ -18,8 +18,12 @@ export class FeedComponent implements OnInit {
   readonly blogs = signal<BlogEntry[]>([]);
 
   ngOnInit(): void {
-    const shared = this.route.snapshot.queryParamMap.get('blog');
-    if (shared) {
+    const params = this.route.snapshot.queryParamMap;
+    const junction = params.get('junction')?.trim();
+    const shared = params.get('blog')?.trim();
+    if (junction) {
+      this.query = junction;
+    } else if (shared) {
       this.query = shared;
     }
     void this.blog.refresh().then(() => this.applySearch());
