@@ -1,0 +1,119 @@
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: block;
+}
+
+.lock-overlay {
+  min-height: 100%;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 1rem;
+  padding: 1.25rem 1.25rem 1.5rem;
+  background: linear-gradient(160deg, #0b2f24 0%, #134e3a 45%, #0f172a 100%);
+  color: #ecfdf5;
+}
+
+.lock-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.lock-head h2 {
+  margin: 0.35rem 0 0.4rem;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  color: #fff;
+}
+
+.sub {
+  margin: 0;
+  max-width: 36rem;
+  color: rgba(236, 253, 245, 0.72);
+  line-height: 1.45;
+}
+
+.close {
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 0.7rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.slots {
+  display: flex;
+  justify-content: center;
+  gap: 0.65rem;
+}
+
+.slot {
+  width: 3rem;
+  height: 3.4rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(15, 23, 42, 0.35);
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.slot.filled {
+  border-color: #5eead4;
+  background: rgba(15, 118, 110, 0.45);
+}
+
+.map {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 0.45rem;
+  align-content: start;
+  overflow: auto;
+  padding: 0.25rem;
+}
+
+.glyph {
+  aspect-ratio: 1;
+  min-height: 2.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+  font-size: clamp(0.95rem, 2.8vw, 1.2rem);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.glyph:hover:not(:disabled) {
+  background: rgba(94, 234, 212, 0.22);
+  border-color: rgba(94, 234, 212, 0.55);
+}
+
+.glyph:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.lock-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  justify-content: flex-end;
+}
+
+.lock-actions .btn-ghost {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ecfdf5;
+}
+
+@media (max-width: 640px) {
+  .map {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}

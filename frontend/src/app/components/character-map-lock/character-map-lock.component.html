@@ -1,0 +1,34 @@
+<div class="lock-overlay" role="dialog" aria-modal="true" [attr.aria-label]="title()">
+  <header class="lock-head">
+    <div>
+      <p class="kicker">Character lock</p>
+      <h2>{{ title() }}</h2>
+      <p class="sub">{{ subtitle() }}</p>
+    </div>
+    @if (dismissible()) {
+      <button type="button" class="close" (click)="dismiss()" aria-label="Close">×</button>
+    }
+  </header>
+
+  <div class="slots" aria-live="polite">
+    @for (slot of slots(); track $index) {
+      <span class="slot" [class.filled]="!!slot">{{ slot || '·' }}</span>
+    }
+  </div>
+
+  <div class="map" role="group" aria-label="Character map">
+    @for (ch of characters(); track $index) {
+      <button type="button" class="glyph" (click)="pick(ch)" [disabled]="canSubmit()">
+        {{ ch }}
+      </button>
+    }
+  </div>
+
+  <footer class="lock-actions">
+    <button type="button" class="btn btn-ghost" (click)="clear()" [disabled]="!selected().length">Clear</button>
+    <button type="button" class="btn btn-ghost" (click)="backspace()" [disabled]="!selected().length">⌫</button>
+    <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="!canSubmit()">
+      {{ confirmLabel() }}
+    </button>
+  </footer>
+</div>

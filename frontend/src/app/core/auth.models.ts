@@ -1,3 +1,32 @@
+/** Shared character-map PIN charset (must match junctionBack BLOG_PIN_CHARSET). */
+export const BLOG_PIN_LENGTH = 4;
+
+export const BLOG_PIN_CHARSET_FALLBACK = [
+  ...'ABCDEFGHJKLMNPQRSTUVWXYZ',
+  ...'23456789',
+  ...'@#$%&*+=',
+  ...'★◆●▲■♥☀⚡',
+].map(String);
+
+export interface CharsetResponse {
+  characters: string[];
+  pin_length: number;
+}
+
+export interface BlogAuthUser {
+  id: string;
+  phone_number: string;
+  display_name: string;
+  user_number: string;
+}
+
+export interface BlogTokenResponse {
+  access_token: string;
+  token_type: string;
+  user: BlogAuthUser;
+}
+
+/** @deprecated OTP models kept for transitional imports */
 export interface OtpRequestPayload {
   display_name: string;
   phone_number: string;
@@ -8,7 +37,6 @@ export interface OtpRequestResponse {
   message: string;
   expires_in_seconds: number;
   session_info: string;
-  /** Present when junctionBack is in OTP debug mode (no GCP key / OTP_DEBUG). */
   debug_otp?: string | null;
 }
 
@@ -20,13 +48,8 @@ export interface OtpVerifyPayload {
 
 export interface AuthUser {
   id: string;
-  email: string | null;
+  email?: string | null;
   phone_number: string | null;
   display_name: string;
-}
-
-export interface TokenResponse {
-  access_token: string;
-  token_type: string;
-  user: AuthUser;
+  user_number?: string;
 }
