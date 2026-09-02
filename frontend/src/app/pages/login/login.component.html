@@ -1,41 +1,110 @@
 <section class="login">
-  <p class="kicker">optional</p>
-  <h1>OTP via junctionBack</h1>
-  <p class="muted">You can create a blog with only a name. OTP links a mobile number.</p>
+  <p class="kicker">Lock</p>
+  <h1>Phone + character PIN</h1>
+  <p class="muted">No password register. New users set a 4-character map PIN; returning users unlock with the same map.</p>
 
-  @if (step() === 'details') {
-    <form class="card form" (ngSubmit)="sendOtp()">
+  @if (gate() === 'choose') {
+    <div class="cards">
+      <button type="button" class="choice card" (click)="chooseNew()">
+        <span class="choice-kicker">New</span>
+        <strong>New user</strong>
+        <span>Enter mobile, then set a 4-character PIN on the full-screen map.</span>
+      </button>
+      <button type="button" class="choice card" (click)="chooseOld()">
+        <span class="choice-kicker">Returning</span>
+        <strong>Old user</strong>
+        <span>Unlock with your number and 4 characters. Or set a PIN first.</span>
+      </button>
+    </div>
+  }
+
+  @if (gate() === 'new-phone') {
+    <form class="card form" (ngSubmit)="startNewSetup()">
+      <button type="button" class="back" (click)="backToChoose()">← Back</button>
       <label class="field">
         <span>Name</span>
-        <input name="displayName" [(ngModel)]="displayName" />
+        <input name="displayName" [(ngModel)]="displayName" autocomplete="name" />
       </label>
       <label class="field">
         <span>Mobile</span>
-        <input name="phoneNumber" [(ngModel)]="phoneNumber" maxlength="10" inputmode="numeric" placeholder="10-digit" />
+        <div class="phone">
+          <span>+91</span>
+          <input
+            name="phoneNumber"
+            [(ngModel)]="phoneNumber"
+            maxlength="10"
+            inputmode="numeric"
+            placeholder="9876543210"
+          />
+        </div>
       </label>
       @if (error()) {
         <p class="err">{{ error() }}</p>
       }
-      <button class="btn btn-primary" type="submit" [disabled]="submitting()">
-        {{ submitting() ? 'Sending…' : 'Send OTP' }}
-      </button>
+      <button class="btn btn-primary" type="submit" [disabled]="submitting()">Open character map</button>
     </form>
-  } @else {
-    <form class="card form" (ngSubmit)="verifyOtp()">
-      <p class="muted">Code sent to {{ e164Phone }}</p>
-      @if (debugOtp()) {
-        <p>Debug OTP {{ debugOtp() }}</p>
-      }
+  }
+
+  @if (gate() === 'old-phone') {
+    <form class="card form" (ngSubmit)="startOldUnlock()">
+      <button type="button" class="back" (click)="backToChoose()">← Back</button>
       <label class="field">
-        <span>OTP</span>
-        <input name="otp" [(ngModel)]="otp" maxlength="6" inputmode="numeric" />
+        <span>Mobile</span>
+        <div class="phone">
+          <span>+91</span>
+          <input
+            name="phoneNumber"
+            [(ngModel)]="phoneNumber"
+            maxlength="10"
+            inputmode="numeric"
+            placeholder="9876543210"
+          />
+        </div>
       </label>
       @if (error()) {
         <p class="err">{{ error() }}</p>
       }
-      <button class="btn btn-primary" type="submit" [disabled]="submitting()">
-        {{ submitting() ? 'Verifying…' : 'Verify' }}
-      </button>
+      <button class="btn btn-primary" type="submit" [disabled]="submitting()">Unlock with character map</button>
+      <button type="button" class="btn btn-ghost" (click)="chooseOldSetPin()">Set PIN first</button>
+    </form>
+  }
+
+  @if (gate() === 'old-set-phone') {
+    <form class="card form" (ngSubmit)="startOldSetPin()">
+      <button type="button" class="back" (click)="chooseOld()">← Back</button>
+      <p class="muted">First-time PIN for this number. If a PIN already exists, unlock instead.</p>
+      <label class="field">
+        <span>Name (optional)</span>
+        <input name="displayName" [(ngModel)]="displayName" autocomplete="name" />
+      </label>
+      <label class="field">
+        <span>Mobile</span>
+        <div class="phone">
+          <span>+91</span>
+          <input
+            name="phoneNumber"
+            [(ngModel)]="phoneNumber"
+            maxlength="10"
+            inputmode="numeric"
+            placeholder="9876543210"
+          />
+        </div>
+      </label>
+      @if (error()) {
+        <p class="err">{{ error() }}</p>
+      }
+      <button class="btn btn-primary" type="submit" [disabled]="submitting()">Set PIN on character map</button>
     </form>
   }
 </section>
+
+@if (mapMode()) {
+  <app-character-map-lock
+    [title]="mapTitle()"
+    [subtitle]="mapSubtitle()"
+    [characters]="charset()"
+    [confirmLabel]="mapConfirmLabel()"
+    (completed)="onMapComplete($event)"
+    (dismissed)="onMapDismiss()"
+  />
+}

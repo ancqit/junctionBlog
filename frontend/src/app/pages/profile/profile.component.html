@@ -4,6 +4,18 @@
     <span>{{ who?.nameTag }} / {{ who?.userNumber }}</span>
   </header>
 
+  <article class="card pin-card">
+    <p class="kicker">lock</p>
+    <h2>Character PIN</h2>
+    <p class="lede">Update the 4 characters you use to unlock Junction blog.</p>
+    @if (pinError()) {
+      <p class="note note--err">{{ pinError() }}</p>
+    }
+    <button type="button" class="btn btn-primary" [disabled]="pinBusy()" (click)="startPinUpdate()">
+      {{ pinBusy() ? 'Updating…' : 'Update PIN' }}
+    </button>
+  </article>
+
   @if (step() === 1) {
     <article class="card">
       <p class="kicker">question 1 / 3</p>
@@ -103,3 +115,14 @@
     <p class="note">{{ message() }}</p>
   }
 </section>
+
+@if (pinMapMode()) {
+  <app-character-map-lock
+    [title]="pinMapTitle()"
+    [subtitle]="'Select four characters from the map.'"
+    [characters]="charset()"
+    [confirmLabel]="pinMapMode() === 'confirm' ? (pinBusy() ? 'Saving…' : 'Save new PIN') : 'Continue'"
+    (completed)="onPinMapComplete($event)"
+    (dismissed)="onPinMapDismiss()"
+  />
+}

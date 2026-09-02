@@ -1,7 +1,11 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
+import { CharacterMapLockComponent } from '../../components/character-map-lock/character-map-lock.component';
 import { HourDialComponent } from '../../components/hour-dial/hour-dial.component';
+import { AuthService } from '../../core/auth.service';
+import { BLOG_PIN_CHARSET_FALLBACK } from '../../core/auth.models';
 import { BlogService } from '../../core/blog.service';
 import { IdentityService } from '../../core/identity.service';
 import {
@@ -20,19 +24,26 @@ import {
 
 @Component({
   selector: 'app-profile',
-  imports: [FormsModule, RouterLink, HourDialComponent],
+  imports: [FormsModule, RouterLink, HourDialComponent, CharacterMapLockComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
 })
 export class ProfileComponent implements OnInit {
   private readonly identity = inject(IdentityService);
   private readonly blog = inject(BlogService);
+  private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
   readonly weekdays = WEEKDAYS;
   readonly step = signal<1 | 2 | 3>(1);
   readonly dayKind = signal<DayKind>('active');
   readonly message = signal('');
+  readonly pinError = signal('');
+  readonly pinBusy = signal(false);
+  readonly charset = signal<string[]>(BLOG_PIN_CHARSET_FALLBACK);
+  readonly pinMapMode = signal<'current' | 'next' | 'confirm' | null>(null);
+  readonly currentPin = signal('');
+  readonly pendingNewPin = signal('');
 
   sleepTime = '22:00';
   wakeTime = '06:00';
@@ -53,9 +64,10 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
     const who = this.identity.identity();
     if (!who) {
-      void this.router.navigateByUrl('/');
+      void this.router.navigateByUrl('/login');
       return;
     }
+    this.auth.getCharset().subscribe((res) => this.charset.set(res.characters));
     const existing = this.blog.profileFor(who.userNumber);
     if (existing) {
       this.sleepTime = existing.sleepTime;
@@ -75,6 +87,75 @@ export class ProfileComponent implements OnInit {
 
   get who() {
     return this.identity.identity();
+  }
+
+  startPinUpdate(): void {
+    if (!this.auth.isAuthenticated()) {
+      this.pinError.set('Unlock with Lock first, then update your PIN.');
+      return;
+    }
+    this.pinError.set('');
+    this.currentPin.set('');
+    this.pendingNewPin.set('');
+    this.pinMapMode.set('current');
+  }
+
+  onPinMapDismiss(): void {
+    this.pinMapMode.set(null);
+    this.currentPin.set('');
+    this.pendingNewPin.set('');
+  }
+
+  onPinMapComplete(pin: string): void {
+    const mode = this.pinMapMode();
+    if (mode === 'current') {
+      this.currentPin.set(pin);
+      this.pinMapMode.set('next');
+      return;
+    }
+    if (mode === 'next') {
+      this.pendingNewPin.set(pin);
+      this.pinMapMode.set('confirm');
+      return;
+    }
+    if (mode === 'confirm') {
+      if (pin !== this.pendingNewPin()) {
+        this.pinError.set('New PINs did not match. Try again.');
+        this.pendingNewPin.set('');
+        this.pinMapMode.set('next');
+        return;
+      }
+      this.pinBusy.set(true);
+      this.auth
+        .updatePin(this.currentPin(), pin)
+        .pipe(finalize(() => this.pinBusy.set(false)))
+        .subscribe({
+          next: () => {
+            this.pinMapMode.set(null);
+            this.currentPin.set('');
+            this.pendingNewPin.set('');
+            this.pinError.set('');
+            this.message.set('PIN updated.');
+          },
+          error: (err: Error) => {
+            this.pinError.set(err.message);
+            this.pinMapMode.set(null);
+          },
+        });
+    }
+  }
+
+  pinMapTitle(): string {
+    switch (this.pinMapMode()) {
+      case 'current':
+        return 'Enter current PIN';
+      case 'next':
+        return 'Choose a new 4-character PIN';
+      case 'confirm':
+        return 'Confirm new PIN';
+      default:
+        return 'Update PIN';
+    }
   }
 
   toggleRestDay(day: number): void {
