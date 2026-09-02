@@ -1,0 +1,38 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.login {
+  min-height: 100dvh;
+  padding: 1rem;
+  background: #020804;
+  color: #7dffb3;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  display: grid;
+  align-content: start;
+  gap: 0.8rem;
+}
+
+a {
+  color: #c8ffd8;
+}
+
+form,
+label {
+  display: grid;
+  gap: 0.45rem;
+}
+
+input,
+button {
+  font: inherit;
+  color: inherit;
+  background: #03140c;
+  border: 1px solid #145c38;
+  padding: 0.55rem 0.7rem;
+}
+
+.err {
+  color: #ff8b8b;
+}

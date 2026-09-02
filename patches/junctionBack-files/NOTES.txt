@@ -1,0 +1,9 @@
+# Add to junctionBack/app/database.py:
+#   blog_entries = database["blog_entries"]
+#   blog_profiles = database["blog_profiles"]
+#   blog_counters = database["blog_counters"]
+#
+# Add to junctionBack/app/main.py:
+#   from .blog import router as blog_router
+#   include blog_router in _routers
+#   add blog origins to CORS: https://junction-blog.vercel.app (or your Vercel URL)

@@ -1,0 +1,50 @@
+<div class="dial" role="group" aria-label="24 hour dial">
+  <svg class="dial__ring" viewBox="0 0 220 220" aria-hidden="true">
+    @for (hour of hours; track hour) {
+      <g
+        class="dial__tick"
+        [class.dial__tick--taken]="taken(hour)"
+        [class.dial__tick--on]="inSelection(hour)"
+        (click)="selectStart(hour)"
+      >
+        <line
+          [attr.x1]="x(hour, 78)"
+          [attr.y1]="y(hour, 78)"
+          [attr.x2]="x(hour, 96)"
+          [attr.y2]="y(hour, 96)"
+        />
+        <text [attr.x]="x(hour, 62)" [attr.y]="y(hour, 62)">
+          {{ hour }}
+        </text>
+      </g>
+    }
+    <circle cx="110" cy="110" r="44" class="dial__core" />
+    <text x="110" y="106" class="dial__core-label">{{ label(startHour) }}</text>
+    <text x="110" y="122" class="dial__core-sub">{{ label(endHour) }}</text>
+  </svg>
+
+  <div class="dial__controls">
+    <label>
+      start
+      <input type="range" min="0" max="23" [ngModel]="startHour" (ngModelChange)="selectStart($event)" />
+    </label>
+    <label>
+      end
+      <input type="range" min="1" max="24" [ngModel]="endHour" (ngModelChange)="selectEnd($event)" />
+    </label>
+  </div>
+
+  <ol class="dial__day">
+    @for (hour of hours; track hour) {
+      <li
+        class="dial__cell"
+        [class.dial__cell--taken]="taken(hour)"
+        [class.dial__cell--on]="inSelection(hour)"
+        (click)="selectStart(hour)"
+        [title]="label(hour)"
+      >
+        {{ hour }}
+      </li>
+    }
+  </ol>
+</div>

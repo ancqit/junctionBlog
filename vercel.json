@@ -1,0 +1,21 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm install --prefix frontend",
+  "buildCommand": "npm run build --prefix frontend",
+  "outputDirectory": "frontend/dist/frontend/browser",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/api/blog/:path*",
+      "destination": "https://junctionback.onrender.com/blog/:path*"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "https://junctionback.onrender.com/:path*"
+    },
+    {
+      "source": "/((?!.*\\.).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

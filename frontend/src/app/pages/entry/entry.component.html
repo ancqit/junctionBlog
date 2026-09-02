@@ -1,0 +1,24 @@
+<section class="entry">
+  <a routerLink="/">back to console</a>
+  @if (entry(); as item) {
+    <h1>blog {{ item.blogNumber }}</h1>
+    <p>junction {{ item.junction }} · {{ item.nameTag }} · user {{ item.creatorNumber }}</p>
+    <p class="tags">{{ item.tags.join(' · ') }}</p>
+    @if (canEdit) {
+      <textarea [(ngModel)]="body" rows="8"></textarea>
+      <button type="button" (click)="save()">save content</button>
+    } @else {
+      <pre>{{ item.body }}</pre>
+    }
+    <p class="share">
+      share
+      <a [href]="today + '?blog=' + item.blogNumber">junction.today</a>
+      <a [href]="website + '?blog=' + item.blogNumber">junction.website</a>
+    </p>
+    @if (message()) {
+      <p>{{ message() }}</p>
+    }
+  } @else {
+    <p>blog not found. search the number from the console.</p>
+  }
+</section>

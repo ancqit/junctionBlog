@@ -1,0 +1,105 @@
+<section class="profile">
+  <header class="profile__bar">
+    <a routerLink="/">back to console</a>
+    <span>{{ who?.nameTag }} / {{ who?.userNumber }}</span>
+  </header>
+
+  @if (step() === 1) {
+    <article class="card">
+      <p class="kicker">question 1 / 3</p>
+      <h1>sleep and wake</h1>
+      <label>sleep time
+        <input type="time" [(ngModel)]="sleepTime" />
+      </label>
+      <label>wake time
+        <input type="time" [(ngModel)]="wakeTime" />
+      </label>
+      <button type="button" (click)="goQuestion2()">next</button>
+    </article>
+  }
+
+  @if (step() === 2) {
+    <article class="card">
+      <p class="kicker">question 2 / 3</p>
+      <h1>activity that can be set</h1>
+      <label>primary activity
+        <input type="text" [(ngModel)]="primaryActivity" placeholder="work, study, shop floor…" />
+      </label>
+      <button type="button" (click)="step.set(1)">back</button>
+      <button type="button" (click)="goQuestion3()">next — 24 hours</button>
+    </article>
+  }
+
+  @if (step() === 3) {
+    <article class="card card--wide">
+      <p class="kicker">question 3 / 3</p>
+      <h1>describe your 24 hours</h1>
+      <p class="lede">select rest days, then declare an active day and a rest day. club hours on the dial.</p>
+
+      <div class="days">
+        @for (label of weekdays; track $index) {
+          <button
+            type="button"
+            class="chip"
+            [class.chip--on]="restDays().includes($index)"
+            (click)="toggleRestDay($index)"
+          >
+            {{ label }}
+          </button>
+        }
+      </div>
+
+      <div class="tabs">
+        <button type="button" [class.on]="dayKind() === 'active'" (click)="dayKind.set('active')">active day</button>
+        <button type="button" [class.on]="dayKind() === 'rest'" (click)="dayKind.set('rest')">rest day</button>
+      </div>
+
+      <app-hour-dial
+        [blocks]="day().blocks"
+        [startHour]="startHour"
+        [endHour]="endHour"
+        (rangeChange)="onRange($event)"
+      />
+
+      <div class="row">
+        <label>activity
+          <input type="text" [(ngModel)]="blockActivity" [placeholder]="primaryActivity" />
+        </label>
+        <label>kind
+          <select [(ngModel)]="blockKind">
+            <option value="active">active</option>
+            <option value="rest">rest</option>
+            <option value="sleep">sleep</option>
+          </select>
+        </label>
+        <button type="button" (click)="addBlock()">add hours</button>
+      </div>
+
+      <ul class="blocks">
+        @for (block of day().blocks; track $index) {
+          <li>
+            {{ block.startHour }}–{{ block.endHour }} {{ block.activity }} ({{ block.kind }})
+            <button type="button" (click)="removeBlock($index)">x</button>
+          </li>
+        }
+      </ul>
+
+      <footer class="foot">
+        <span>remaining {{ summary().remainingHours }}h</span>
+        <span>active {{ summary().activeHours }}h</span>
+        <span>rest {{ summary().restHours }}h</span>
+        <span>sleep {{ summary().sleepHours }}h</span>
+      </footer>
+      <p class="estimate">
+        week active {{ span().weekActiveHours }}h · month ~{{ span().monthActiveHours }}h · year {{ span().yearActiveHours }}h
+      </p>
+
+      <button type="button" (click)="step.set(2)">back</button>
+      <button type="button" (click)="save()">save profile</button>
+    </article>
+  }
+
+  @if (message()) {
+    <p class="note">{{ message() }}</p>
+  }
+</section>

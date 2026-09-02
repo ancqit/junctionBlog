@@ -1,0 +1,35 @@
+<section class="login">
+  <a routerLink="/">back to console</a>
+  <h1>otp login via junctionBack</h1>
+  <p>optional. you can post from the console with only a name.</p>
+
+  @if (step() === 'details') {
+    <form (ngSubmit)="sendOtp()">
+      <label>name
+        <input name="displayName" [(ngModel)]="displayName" />
+      </label>
+      <label>mobile
+        <span>+91</span>
+        <input name="phoneNumber" [(ngModel)]="phoneNumber" maxlength="10" inputmode="numeric" />
+      </label>
+      @if (error()) {
+        <p class="err">{{ error() }}</p>
+      }
+      <button type="submit" [disabled]="submitting()">{{ submitting() ? 'sending…' : 'send otp' }}</button>
+    </form>
+  } @else {
+    <form (ngSubmit)="verifyOtp()">
+      <p>code sent to {{ e164Phone }}</p>
+      @if (debugOtp()) {
+        <p>debug otp {{ debugOtp() }}</p>
+      }
+      <label>otp
+        <input name="otp" [(ngModel)]="otp" maxlength="6" inputmode="numeric" />
+      </label>
+      @if (error()) {
+        <p class="err">{{ error() }}</p>
+      }
+      <button type="submit" [disabled]="submitting()">{{ submitting() ? 'verifying…' : 'verify' }}</button>
+    </form>
+  }
+</section>

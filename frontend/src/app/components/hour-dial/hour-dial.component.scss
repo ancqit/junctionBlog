@@ -1,0 +1,94 @@
+.dial {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: center;
+}
+
+.dial__ring {
+  width: min(100%, 16rem);
+  overflow: visible;
+}
+
+.dial__tick line {
+  stroke: #1f6f4a;
+  stroke-width: 3;
+  cursor: pointer;
+}
+
+.dial__tick--on line {
+  stroke: #7dffb3;
+}
+
+.dial__tick--taken line {
+  stroke: #c9a227;
+}
+
+.dial__tick text {
+  fill: #7dffb3;
+  font-size: 7px;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+}
+
+.dial__core {
+  fill: #03140c;
+  stroke: #7dffb3;
+}
+
+.dial__core-label,
+.dial__core-sub {
+  fill: #7dffb3;
+  text-anchor: middle;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+}
+
+.dial__core-sub {
+  font-size: 9px;
+  fill: #4dff91;
+}
+
+.dial__controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  width: 100%;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.dial__controls input {
+  width: 100%;
+}
+
+.dial__day {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 2px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dial__cell {
+  display: grid;
+  place-items: center;
+  min-height: 1.6rem;
+  border: 1px solid #1f6f4a;
+  color: #4dff91;
+  font-size: 0.65rem;
+  cursor: pointer;
+}
+
+.dial__cell--on {
+  background: #145c38;
+  color: #e8ffe8;
+}
+
+.dial__cell--taken {
+  background: #3d3410;
+  color: #ffe38a;
+}
