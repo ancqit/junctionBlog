@@ -1,10 +1,13 @@
 <section class="feed">
-  <div class="hero">
+  <header class="hero">
     <p class="kicker">junction.today · junction.website</p>
-    <h1>Blogs</h1>
-    <p class="muted">Complaints and notes for a junction. Search by blog number or nametag.</p>
+    <h1>
+      <span class="brand-word">Junction</span>
+      <span class="brand-sub">blog</span>
+    </h1>
+    <p class="lede">Complaints and notes for a place. Search by junction, number, or nametag.</p>
     <a class="btn btn-primary" routerLink="/create">Create a blog</a>
-  </div>
+  </header>
 
   @if (usingLocal) {
     <p class="banner">Saving locally until junctionBack `/blog` is live. Same API shape is ready to merge.</p>
