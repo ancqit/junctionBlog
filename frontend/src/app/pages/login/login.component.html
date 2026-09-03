@@ -19,11 +19,11 @@
   }
 
   @if (gate() === 'new-phone') {
-    <form class="card form" (ngSubmit)="startNewSetup()">
+    <form class="card form" #newPhoneForm="ngForm" (ngSubmit)="startNewSetup()">
       <button type="button" class="back" (click)="backToChoose()">← Back</button>
       <label class="field">
         <span>Name</span>
-        <input name="displayName" [(ngModel)]="displayName" autocomplete="name" />
+        <input name="displayName" [(ngModel)]="displayName" autocomplete="name" required />
       </label>
       <label class="field">
         <span>Mobile</span>
@@ -35,18 +35,19 @@
             maxlength="10"
             inputmode="numeric"
             placeholder="9876543210"
+            required
           />
         </div>
       </label>
       @if (error()) {
         <p class="err">{{ error() }}</p>
       }
-      <button class="btn btn-primary" type="submit" [disabled]="submitting()">Open character map</button>
+      <button class="btn btn-primary" type="submit" [disabled]="newPhoneForm.invalid || submitting()">Open character map</button>
     </form>
   }
 
   @if (gate() === 'old-phone') {
-    <form class="card form" (ngSubmit)="startOldUnlock()">
+    <form class="card form" #oldPhoneForm="ngForm" (ngSubmit)="startOldUnlock()">
       <button type="button" class="back" (click)="backToChoose()">← Back</button>
       <label class="field">
         <span>Mobile</span>
@@ -58,19 +59,20 @@
             maxlength="10"
             inputmode="numeric"
             placeholder="9876543210"
+            required
           />
         </div>
       </label>
       @if (error()) {
         <p class="err">{{ error() }}</p>
       }
-      <button class="btn btn-primary" type="submit" [disabled]="submitting()">Unlock with character map</button>
+      <button class="btn btn-primary" type="submit" [disabled]="oldPhoneForm.invalid || submitting()">Unlock with character map</button>
       <button type="button" class="btn btn-ghost" (click)="chooseOldSetPin()">Set PIN first</button>
     </form>
   }
 
   @if (gate() === 'old-set-phone') {
-    <form class="card form" (ngSubmit)="startOldSetPin()">
+    <form class="card form" #oldSetPhoneForm="ngForm" (ngSubmit)="startOldSetPin()">
       <button type="button" class="back" (click)="chooseOld()">← Back</button>
       <p class="muted">First-time PIN for this number. If a PIN already exists, unlock instead.</p>
       <label class="field">
@@ -87,13 +89,14 @@
             maxlength="10"
             inputmode="numeric"
             placeholder="9876543210"
+            required
           />
         </div>
       </label>
       @if (error()) {
         <p class="err">{{ error() }}</p>
       }
-      <button class="btn btn-primary" type="submit" [disabled]="submitting()">Set PIN on character map</button>
+      <button class="btn btn-primary" type="submit" [disabled]="oldSetPhoneForm.invalid || submitting()">Set PIN on character map</button>
     </form>
   }
 </section>

@@ -3,7 +3,7 @@
   <h1>Create a blog</h1>
   <p class="muted">Always for a junction. Choose city and locality the same way as junction.today.</p>
 
-  <form class="card form" (ngSubmit)="submit()">
+  <form class="card form" #createForm="ngForm" (ngSubmit)="submit()">
     <div class="picker-field">
       <span class="field-label">City</span>
       @if (selectedCity) {
@@ -93,7 +93,7 @@
     }
     <div class="actions">
       <a class="btn btn-ghost" routerLink="/">Cancel</a>
-      <button class="btn btn-primary" type="submit" [disabled]="saving()">
+      <button class="btn btn-primary" type="submit" [disabled]="createForm.invalid || saving()">
         {{ saving() ? 'Saving…' : 'Create a blog' }}
       </button>
     </div>

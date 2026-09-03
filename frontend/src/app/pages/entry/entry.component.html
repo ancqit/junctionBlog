@@ -58,7 +58,7 @@
       }
     </ul>
 
-    <form class="card comment-form" (ngSubmit)="submitComment()">
+    <form class="card comment-form" #commentForm="ngForm" (ngSubmit)="submitComment()">
       <div class="author-toggle" role="group" aria-label="Comment author type">
         <button type="button" [class.active]="authorKind === 'person'" (click)="setAuthorKind('person')">
           As a name
@@ -71,7 +71,7 @@
       @if (authorKind === 'person') {
         <label class="field">
           <span>Name</span>
-          <input name="commentName" [(ngModel)]="commentName" />
+          <input name="commentName" [(ngModel)]="commentName" required />
         </label>
         <label class="field">
           <span>Mobile (optional)</span>
@@ -87,6 +87,7 @@
               (ngModelChange)="onShopPhoneChange()"
               inputmode="numeric"
               maxlength="15"
+              required
             />
             <button type="button" class="btn btn-ghost" [disabled]="verifyingShop()" (click)="verifyShop()">
               {{ verifyingShop() ? 'Checking…' : 'Verify' }}
@@ -100,12 +101,12 @@
 
       <label class="field">
         <span>Comment</span>
-        <textarea name="commentBody" rows="3" [(ngModel)]="commentBody" placeholder="Write a comment…"></textarea>
+        <textarea name="commentBody" rows="3" [(ngModel)]="commentBody" placeholder="Write a comment…" required></textarea>
       </label>
       @if (error()) {
         <p class="err">{{ error() }}</p>
       }
-      <button class="btn btn-primary" type="submit" [disabled]="posting()">
+      <button class="btn btn-primary" type="submit" [disabled]="commentForm.invalid || posting()">
         {{ posting() ? 'Posting…' : 'Post comment' }}
       </button>
     </form>
