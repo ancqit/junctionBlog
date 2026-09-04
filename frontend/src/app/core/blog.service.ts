@@ -4,16 +4,12 @@ import { firstValueFrom } from 'rxjs';
 import { BlogComment, BlogEntry, BlogProfile, BlogShopIdentity } from '../models/blog.models';
 import { API_BASE_URL } from './api.config';
 
-const ENTRIES_KEY = 'jblog.entries';
-const PROFILES_KEY = 'jblog.profiles';
-const BLOG_SEQ_KEY = 'jblog.blogSeq';
-
 @Injectable({ providedIn: 'root' })
 export class BlogService {
   private readonly http = inject(HttpClient);
-  readonly entries = signal<BlogEntry[]>(this.normalizeAll(this.readEntries()));
-  readonly profiles = signal<BlogProfile[]>(this.readProfiles());
-  readonly usingLocalStore = signal(true);
+  readonly entries = signal<BlogEntry[]>([]);
+  readonly profiles = signal<BlogProfile[]>([]);
+  readonly usingLocalStore = signal(false);
   readonly lastError = signal('');
 
   async refresh(): Promise<void> {
@@ -24,12 +20,11 @@ export class BlogService {
       if (Array.isArray(remote)) {
         const entries = this.normalizeAll(remote);
         this.entries.set(entries);
-        this.writeEntries(entries);
         this.usingLocalStore.set(false);
         this.lastError.set('');
       }
     } catch {
-      this.usingLocalStore.set(true);
+      this.usingLocalStore.set(this.entries().length > 0);
     }
     try {
       const remoteProfiles = await firstValueFrom(
@@ -37,10 +32,9 @@ export class BlogService {
       );
       if (Array.isArray(remoteProfiles)) {
         this.profiles.set(remoteProfiles);
-        this.writeProfiles(remoteProfiles);
       }
     } catch {
-      /* local profiles remain */
+      /* keep in-memory profiles */
     }
   }
 
@@ -308,20 +302,16 @@ export class BlogService {
   private upsertEntry(entry: BlogEntry): void {
     const next = [entry, ...this.entries().filter((item) => item.blogNumber !== entry.blogNumber)];
     this.entries.set(next);
-    this.writeEntries(next);
   }
 
   private upsertProfile(profile: BlogProfile): void {
     const next = [profile, ...this.profiles().filter((item) => item.userNumber !== profile.userNumber)];
     this.profiles.set(next);
-    this.writeProfiles(next);
   }
 
   private nextBlogNumber(): number {
-    const current = Number(localStorage.getItem(BLOG_SEQ_KEY) ?? '2000');
-    const next = current + 1;
-    localStorage.setItem(BLOG_SEQ_KEY, String(next));
-    return next;
+    const max = this.entries().reduce((acc, row) => Math.max(acc, row.blogNumber || 0), 2000);
+    return max + 1;
   }
 
   private messageOf(error: unknown): string {
@@ -329,31 +319,5 @@ export class BlogService {
       return String((error as { message: string }).message);
     }
     return 'junctionBack /blog is not available yet';
-  }
-
-  private readEntries(): BlogEntry[] {
-    try {
-      const raw = localStorage.getItem(ENTRIES_KEY);
-      return raw ? (JSON.parse(raw) as BlogEntry[]) : [];
-    } catch {
-      return [];
-    }
-  }
-
-  private writeEntries(entries: BlogEntry[]): void {
-    localStorage.setItem(ENTRIES_KEY, JSON.stringify(entries));
-  }
-
-  private readProfiles(): BlogProfile[] {
-    try {
-      const raw = localStorage.getItem(PROFILES_KEY);
-      return raw ? (JSON.parse(raw) as BlogProfile[]) : [];
-    } catch {
-      return [];
-    }
-  }
-
-  private writeProfiles(profiles: BlogProfile[]): void {
-    localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
   }
 }
