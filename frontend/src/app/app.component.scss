@@ -76,6 +76,26 @@ nav a:hover {
   background: rgba(243, 215, 130, 0.28);
 }
 
+.nav-logout {
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.nav-logout:hover {
+  color: var(--forest);
+  background: rgba(243, 215, 130, 0.28);
+}
+
 .who {
   color: var(--mute);
   font-size: 0.75rem;

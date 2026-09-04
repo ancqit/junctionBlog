@@ -1,15 +1,21 @@
 <section class="entry">
-  <a routerLink="/">Blogs</a>
+  <a class="back" routerLink="/">← Blogs</a>
   @if (entry(); as item) {
-    <p class="kicker">blog {{ item.blogNumber }}</p>
-    <h1>{{ item.junction }}</h1>
-    <p class="meta">
-      {{ item.nameTag }} · user {{ item.creatorNumber }}
-      @if (item.authorKind === 'shop') {
-        · shop
-      }
-    </p>
-    <article class="card body">{{ item.body }}</article>
+    <header class="entry__head">
+      <p class="kicker">blog {{ item.blogNumber }}</p>
+      <h1>{{ item.junction }}</h1>
+      <p class="meta">
+        {{ item.nameTag }} · user {{ item.creatorNumber }}
+        @if (item.authorKind === 'shop') {
+          · shop
+        }
+      </p>
+    </header>
+
+    <article class="prose">
+      <p class="body-text">{{ item.body }}</p>
+    </article>
+
     <p class="share muted">
       Share
       <a [href]="today + '?blog=' + item.blogNumber">junction.today</a>
@@ -17,99 +23,101 @@
       <a [href]="website + '?blog=' + item.blogNumber">junction.website</a>
     </p>
 
-    <h2>Comments</h2>
-    @if (!item.comments.length) {
-      <p class="muted">None yet. Add one below as a name or a shop.</p>
-    }
-    <ul class="comments">
-      @for (comment of item.comments; track comment.id) {
-        <li class="card comment-row">
-          <div class="comment-top">
-            <strong>
-              {{ comment.nameTag }}
-              @if (comment.authorKind === 'shop') {
-                <span class="pill">shop</span>
-              }
-            </strong>
-            @if (canManage(comment)) {
-              <div class="menu">
-                <button type="button" class="menu-trigger" (click)="toggleMenu(comment.id, $event)">⋮</button>
-                @if (menuOpenId() === comment.id) {
-                  <div class="menu-panel" role="menu">
-                    <button type="button" role="menuitem" (click)="startEdit(comment)">Edit</button>
-                    <button type="button" role="menuitem" class="danger" (click)="deleteComment(comment)">
-                      Delete
-                    </button>
-                  </div>
+    <section class="comments-block">
+      <h2>Comments</h2>
+      @if (!item.comments.length) {
+        <p class="muted">None yet. Add one below as a name or a shop.</p>
+      }
+      <ul class="comments">
+        @for (comment of item.comments; track comment.id) {
+          <li class="card comment-row">
+            <div class="comment-top">
+              <strong>
+                {{ comment.nameTag }}
+                @if (comment.authorKind === 'shop') {
+                  <span class="pill">shop</span>
                 }
-              </div>
-            }
-          </div>
-          @if (editingId() === comment.id) {
-            <textarea rows="3" [ngModel]="editDraft()" (ngModelChange)="editDraft.set($event)"></textarea>
-            <div class="edit-actions">
-              <button type="button" class="btn btn-ghost" (click)="cancelEdit()">Cancel</button>
-              <button type="button" class="btn btn-primary" (click)="saveEdit(comment)">Save</button>
+              </strong>
+              @if (canManage(comment)) {
+                <div class="menu">
+                  <button type="button" class="menu-trigger" (click)="toggleMenu(comment.id, $event)">⋮</button>
+                  @if (menuOpenId() === comment.id) {
+                    <div class="menu-panel" role="menu">
+                      <button type="button" role="menuitem" (click)="startEdit(comment)">Edit</button>
+                      <button type="button" role="menuitem" class="danger" (click)="deleteComment(comment)">
+                        Delete
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
             </div>
-          } @else {
-            <p>{{ comment.body }}</p>
-          }
-        </li>
-      }
-    </ul>
-
-    <form class="card comment-form" #commentForm="ngForm" (ngSubmit)="submitComment()">
-      <div class="author-toggle" role="group" aria-label="Comment author type">
-        <button type="button" [class.active]="authorKind === 'person'" (click)="setAuthorKind('person')">
-          As a name
-        </button>
-        <button type="button" [class.active]="authorKind === 'shop'" (click)="setAuthorKind('shop')">
-          As a shop
-        </button>
-      </div>
-
-      @if (authorKind === 'person') {
-        <label class="field">
-          <span>Name</span>
-          <input name="commentName" [(ngModel)]="commentName" required />
-        </label>
-        <label class="field">
-          <span>Mobile (optional)</span>
-          <input name="commentPhone" [(ngModel)]="commentPhone" inputmode="numeric" maxlength="15" />
-        </label>
-      } @else {
-        <label class="field">
-          <span>Shop phone</span>
-          <div class="shop-verify-row">
-            <input
-              name="shopPhone"
-              [(ngModel)]="shopPhone"
-              (ngModelChange)="onShopPhoneChange()"
-              inputmode="numeric"
-              maxlength="15"
-              required
-            />
-            <button type="button" class="btn btn-ghost" [disabled]="verifyingShop()" (click)="verifyShop()">
-              {{ verifyingShop() ? 'Checking…' : 'Verify' }}
-            </button>
-          </div>
-        </label>
-        @if (shopIdentity(); as shop) {
-          <p class="shop-verified">Verified shop: {{ shop.shop_name }}</p>
+            @if (editingId() === comment.id) {
+              <textarea rows="3" [ngModel]="editDraft()" (ngModelChange)="editDraft.set($event)"></textarea>
+              <div class="edit-actions">
+                <button type="button" class="btn btn-ghost" (click)="cancelEdit()">Cancel</button>
+                <button type="button" class="btn btn-primary" (click)="saveEdit(comment)">Save</button>
+              </div>
+            } @else {
+              <p>{{ comment.body }}</p>
+            }
+          </li>
         }
-      }
+      </ul>
 
-      <label class="field">
-        <span>Comment</span>
-        <textarea name="commentBody" rows="3" [(ngModel)]="commentBody" placeholder="Write a comment…" required></textarea>
-      </label>
-      @if (error()) {
-        <p class="err">{{ error() }}</p>
-      }
-      <button class="btn btn-primary" type="submit" [disabled]="commentForm.invalid || posting()">
-        {{ posting() ? 'Posting…' : 'Post comment' }}
-      </button>
-    </form>
+      <form class="card comment-form" #commentForm="ngForm" (ngSubmit)="submitComment()">
+        <div class="author-toggle" role="group" aria-label="Comment author type">
+          <button type="button" [class.active]="authorKind === 'person'" (click)="setAuthorKind('person')">
+            As a name
+          </button>
+          <button type="button" [class.active]="authorKind === 'shop'" (click)="setAuthorKind('shop')">
+            As a shop
+          </button>
+        </div>
+
+        @if (authorKind === 'person') {
+          <label class="field">
+            <span>Name</span>
+            <input name="commentName" [(ngModel)]="commentName" required />
+          </label>
+          <label class="field">
+            <span>Mobile (optional)</span>
+            <input name="commentPhone" [(ngModel)]="commentPhone" inputmode="numeric" maxlength="15" />
+          </label>
+        } @else {
+          <label class="field">
+            <span>Shop phone</span>
+            <div class="shop-verify-row">
+              <input
+                name="shopPhone"
+                [(ngModel)]="shopPhone"
+                (ngModelChange)="onShopPhoneChange()"
+                inputmode="numeric"
+                maxlength="15"
+                required
+              />
+              <button type="button" class="btn btn-ghost" [disabled]="verifyingShop()" (click)="verifyShop()">
+                {{ verifyingShop() ? 'Checking…' : 'Verify' }}
+              </button>
+            </div>
+          </label>
+          @if (shopIdentity(); as shop) {
+            <p class="shop-verified">Verified shop: {{ shop.shop_name }}</p>
+          }
+        }
+
+        <label class="field">
+          <span>Comment</span>
+          <textarea name="commentBody" rows="3" [(ngModel)]="commentBody" placeholder="Write a comment…" required></textarea>
+        </label>
+        @if (error()) {
+          <p class="err">{{ error() }}</p>
+        }
+        <button class="btn btn-primary" type="submit" [disabled]="commentForm.invalid || posting()">
+          {{ posting() ? 'Posting…' : 'Post comment' }}
+        </button>
+      </form>
+    </section>
 
     <div class="create-footer">
       <a class="btn btn-primary" routerLink="/create">Create a blog</a>

@@ -22,6 +22,8 @@ import {
   summarizeDay,
 } from '../../lib/routine';
 
+type PinMapMode = 'setup' | 'confirm' | 'current' | 'next' | 'confirm-new' | null;
+
 @Component({
   selector: 'app-profile',
   imports: [FormsModule, RouterLink, HourDialComponent, CharacterMapLockComponent],
@@ -41,9 +43,13 @@ export class ProfileComponent implements OnInit {
   readonly pinError = signal('');
   readonly pinBusy = signal(false);
   readonly charset = signal<string[]>(BLOG_PIN_CHARSET_FALLBACK);
-  readonly pinMapMode = signal<'current' | 'next' | 'confirm' | null>(null);
+  readonly pinMapMode = signal<PinMapMode>(null);
   readonly currentPin = signal('');
   readonly pendingNewPin = signal('');
+  readonly lockJustSet = signal(false);
+
+  displayName = '';
+  phoneNumber = '';
 
   sleepTime = '22:00';
   wakeTime = '06:00';
@@ -60,41 +66,72 @@ export class ProfileComponent implements OnInit {
   readonly day = computed(() => (this.dayKind() === 'active' ? this.activeDay() : this.restDay()));
   readonly summary = computed(() => summarizeDay(this.day()));
   readonly span = computed(() => estimateSpan(this.restDays(), this.activeDay(), this.restDay()));
+  readonly unlocked = computed(() => this.auth.isAuthenticated());
 
   ngOnInit(): void {
     const who = this.identity.identity();
-    if (!who) {
-      void this.router.navigateByUrl('/login');
-      return;
+    if (who) {
+      this.displayName = who.displayName;
+      this.phoneNumber = who.phoneNumber?.replace(/^\+91/, '') ?? '';
+      const existing = this.blog.profileFor(who.userNumber);
+      if (existing) {
+        this.sleepTime = existing.sleepTime;
+        this.wakeTime = existing.wakeTime;
+        this.primaryActivity = existing.primaryActivity;
+        this.restDays.set([...existing.restDays]);
+        this.activeDay.set({
+          type: 'active',
+          blocks: existing.activeDay.blocks.map((block) => ({ ...block })),
+        });
+        this.restDay.set({
+          type: 'rest',
+          blocks: existing.restDay.blocks.map((block) => ({ ...block })),
+        });
+      }
     }
     this.auth.getCharset().subscribe((res) => this.charset.set(res.characters));
-    const existing = this.blog.profileFor(who.userNumber);
-    if (existing) {
-      this.sleepTime = existing.sleepTime;
-      this.wakeTime = existing.wakeTime;
-      this.primaryActivity = existing.primaryActivity;
-      this.restDays.set([...existing.restDays]);
-      this.activeDay.set({
-        type: 'active',
-        blocks: existing.activeDay.blocks.map((block) => ({ ...block })),
-      });
-      this.restDay.set({
-        type: 'rest',
-        blocks: existing.restDay.blocks.map((block) => ({ ...block })),
-      });
-    }
   }
 
   get who() {
     return this.identity.identity();
   }
 
+  get e164Phone(): string {
+    return `+91${this.phoneNumber.trim().replace(/\s+/g, '')}`;
+  }
+
+  saveIdentity(): boolean {
+    this.pinError.set('');
+    const name = this.displayName.trim();
+    const phone = this.phoneNumber.trim().replace(/\s+/g, '');
+    if (!name) {
+      this.pinError.set('Enter your name.');
+      return false;
+    }
+    if (!/^[6-9]\d{9}$/.test(phone)) {
+      this.pinError.set('Enter a valid 10-digit Indian mobile number.');
+      return false;
+    }
+    this.identity.enter(name, phone);
+    return true;
+  }
+
+  startPinSetup(): void {
+    if (!this.saveIdentity()) {
+      return;
+    }
+    this.lockJustSet.set(false);
+    this.pendingNewPin.set('');
+    this.pinMapMode.set('setup');
+  }
+
   startPinUpdate(): void {
     if (!this.auth.isAuthenticated()) {
-      this.pinError.set('Unlock with Lock first, then update your PIN.');
+      this.pinError.set('Unlock on Login first, then update your PIN here.');
       return;
     }
     this.pinError.set('');
+    this.lockJustSet.set(false);
     this.currentPin.set('');
     this.pendingNewPin.set('');
     this.pinMapMode.set('current');
@@ -108,6 +145,21 @@ export class ProfileComponent implements OnInit {
 
   onPinMapComplete(pin: string): void {
     const mode = this.pinMapMode();
+    if (mode === 'setup') {
+      this.pendingNewPin.set(pin);
+      this.pinMapMode.set('confirm');
+      return;
+    }
+    if (mode === 'confirm') {
+      if (pin !== this.pendingNewPin()) {
+        this.pinError.set('PINs did not match. Choose 4 characters again.');
+        this.pendingNewPin.set('');
+        this.pinMapMode.set('setup');
+        return;
+      }
+      this.submitSetup(pin);
+      return;
+    }
     if (mode === 'current') {
       this.currentPin.set(pin);
       this.pinMapMode.set('next');
@@ -115,10 +167,10 @@ export class ProfileComponent implements OnInit {
     }
     if (mode === 'next') {
       this.pendingNewPin.set(pin);
-      this.pinMapMode.set('confirm');
+      this.pinMapMode.set('confirm-new');
       return;
     }
-    if (mode === 'confirm') {
+    if (mode === 'confirm-new') {
       if (pin !== this.pendingNewPin()) {
         this.pinError.set('New PINs did not match. Try again.');
         this.pendingNewPin.set('');
@@ -145,17 +197,56 @@ export class ProfileComponent implements OnInit {
     }
   }
 
+  logout(): void {
+    this.auth.logout();
+    this.lockJustSet.set(false);
+    this.message.set('Logged out.');
+    void this.router.navigateByUrl('/');
+  }
+
+  goLogin(): void {
+    void this.router.navigateByUrl('/login');
+  }
+
   pinMapTitle(): string {
     switch (this.pinMapMode()) {
+      case 'setup':
+        return 'Set your 4-character PIN';
+      case 'confirm':
+        return 'Repeat the same 4 characters';
       case 'current':
         return 'Enter current PIN';
       case 'next':
         return 'Choose a new 4-character PIN';
-      case 'confirm':
+      case 'confirm-new':
         return 'Confirm new PIN';
       default:
-        return 'Update PIN';
+        return 'Character lock';
     }
+  }
+
+  pinMapSubtitle(): string {
+    switch (this.pinMapMode()) {
+      case 'setup':
+        return 'Open the map and pick four characters. You’ll confirm them next.';
+      case 'confirm':
+        return 'Select the same sequence again to lock it in.';
+      case 'current':
+        return 'Enter your current four characters to continue.';
+      case 'next':
+      case 'confirm-new':
+        return 'Select four characters from the map.';
+      default:
+        return '';
+    }
+  }
+
+  pinConfirmLabel(): string {
+    const mode = this.pinMapMode();
+    if (mode === 'confirm' || mode === 'confirm-new') {
+      return this.pinBusy() ? 'Saving…' : 'Save PIN';
+    }
+    return 'Continue';
   }
 
   toggleRestDay(day: number): void {
@@ -227,7 +318,13 @@ export class ProfileComponent implements OnInit {
   }
 
   async save(): Promise<void> {
-    const who = this.identity.identity();
+    let who = this.identity.identity();
+    if (!who) {
+      if (!this.saveIdentity()) {
+        return;
+      }
+      who = this.identity.identity();
+    }
     if (!who) {
       return;
     }
@@ -246,6 +343,30 @@ export class ProfileComponent implements OnInit {
     };
     await this.blog.saveProfile(profile);
     this.message.set('profile saved. week is enough to estimate month and year.');
+  }
+
+  private submitSetup(pin: string): void {
+    this.pinBusy.set(true);
+    this.pinError.set('');
+    this.auth
+      .setupPin(this.e164Phone, pin, this.displayName.trim() || undefined)
+      .pipe(finalize(() => this.pinBusy.set(false)))
+      .subscribe({
+        next: () => {
+          this.pinMapMode.set(null);
+          this.pendingNewPin.set('');
+          this.lockJustSet.set(true);
+          this.message.set('Character lock set. You can unlock anytime from Login.');
+        },
+        error: (err: Error) => {
+          this.pinError.set(err.message);
+          this.pinMapMode.set(null);
+          this.pendingNewPin.set('');
+          if (/already has a pin/i.test(err.message)) {
+            this.message.set('This number already has a lock — unlock on Login instead.');
+          }
+        },
+      });
   }
 
   private seedSleepIfNeeded(): void {
