@@ -1,112 +1,53 @@
 <section class="login">
-  <p class="kicker">Lock</p>
-  <h1>Phone + character PIN</h1>
-  <p class="muted">No password register. New users set a 4-character map PIN; returning users unlock with the same map.</p>
+  <p class="kicker">Login</p>
+  <h1>Unlock your blog lock</h1>
+  <p class="muted">
+    Returning readers unlock with their mobile and 4-character map PIN. New locks are created on
+    <a routerLink="/profile">Profile</a>, not here.
+  </p>
 
-  @if (gate() === 'choose') {
-    <div class="cards">
-      <button type="button" class="choice card" (click)="chooseNew()">
-        <span class="choice-kicker">New</span>
-        <strong>New user</strong>
-        <span>Enter mobile, then set a 4-character PIN on the full-screen map.</span>
-      </button>
-      <button type="button" class="choice card" (click)="chooseOld()">
-        <span class="choice-kicker">Returning</span>
-        <strong>Old user</strong>
-        <span>Unlock with your number and 4 characters. Or set a PIN first.</span>
-      </button>
-    </div>
-  }
+  <form class="card form" #unlockForm="ngForm" (ngSubmit)="startUnlock()">
+    <label class="field">
+      <span>Mobile</span>
+      <div class="phone">
+        <span>+91</span>
+        <input
+          name="phoneNumber"
+          [(ngModel)]="phoneNumber"
+          maxlength="10"
+          inputmode="numeric"
+          placeholder="9876543210"
+          required
+        />
+      </div>
+    </label>
+    @if (error()) {
+      <p class="err">{{ error() }}</p>
+    }
+    @if (suggestProfile()) {
+      <p class="hint">
+        No lock for this number yet? Create one on
+        <button type="button" class="linkish" (click)="goToProfile()">Profile</button>
+        first, then come back to unlock.
+      </p>
+    }
+    <button class="btn btn-primary" type="submit" [disabled]="unlockForm.invalid || submitting()">
+      {{ submitting() ? 'Unlocking…' : 'Unlock with character map' }}
+    </button>
+  </form>
 
-  @if (gate() === 'new-phone') {
-    <form class="card form" #newPhoneForm="ngForm" (ngSubmit)="startNewSetup()">
-      <button type="button" class="back" (click)="backToChoose()">← Back</button>
-      <label class="field">
-        <span>Name</span>
-        <input name="displayName" [(ngModel)]="displayName" autocomplete="name" required />
-      </label>
-      <label class="field">
-        <span>Mobile</span>
-        <div class="phone">
-          <span>+91</span>
-          <input
-            name="phoneNumber"
-            [(ngModel)]="phoneNumber"
-            maxlength="10"
-            inputmode="numeric"
-            placeholder="9876543210"
-            required
-          />
-        </div>
-      </label>
-      @if (error()) {
-        <p class="err">{{ error() }}</p>
-      }
-      <button class="btn btn-primary" type="submit" [disabled]="newPhoneForm.invalid || submitting()">Open character map</button>
-    </form>
-  }
-
-  @if (gate() === 'old-phone') {
-    <form class="card form" #oldPhoneForm="ngForm" (ngSubmit)="startOldUnlock()">
-      <button type="button" class="back" (click)="backToChoose()">← Back</button>
-      <label class="field">
-        <span>Mobile</span>
-        <div class="phone">
-          <span>+91</span>
-          <input
-            name="phoneNumber"
-            [(ngModel)]="phoneNumber"
-            maxlength="10"
-            inputmode="numeric"
-            placeholder="9876543210"
-            required
-          />
-        </div>
-      </label>
-      @if (error()) {
-        <p class="err">{{ error() }}</p>
-      }
-      <button class="btn btn-primary" type="submit" [disabled]="oldPhoneForm.invalid || submitting()">Unlock with character map</button>
-      <button type="button" class="btn btn-ghost" (click)="chooseOldSetPin()">Set PIN first</button>
-    </form>
-  }
-
-  @if (gate() === 'old-set-phone') {
-    <form class="card form" #oldSetPhoneForm="ngForm" (ngSubmit)="startOldSetPin()">
-      <button type="button" class="back" (click)="chooseOld()">← Back</button>
-      <p class="muted">First-time PIN for this number. If a PIN already exists, unlock instead.</p>
-      <label class="field">
-        <span>Name (optional)</span>
-        <input name="displayName" [(ngModel)]="displayName" autocomplete="name" />
-      </label>
-      <label class="field">
-        <span>Mobile</span>
-        <div class="phone">
-          <span>+91</span>
-          <input
-            name="phoneNumber"
-            [(ngModel)]="phoneNumber"
-            maxlength="10"
-            inputmode="numeric"
-            placeholder="9876543210"
-            required
-          />
-        </div>
-      </label>
-      @if (error()) {
-        <p class="err">{{ error() }}</p>
-      }
-      <button class="btn btn-primary" type="submit" [disabled]="oldSetPhoneForm.invalid || submitting()">Set PIN on character map</button>
-    </form>
-  }
+  <p class="foot muted">
+    First visit?
+    <a routerLink="/profile">Set your character lock on Profile</a>
+  </p>
 </section>
 
-@if (mapMode()) {
+@if (mapOpen()) {
   <app-character-map-lock
-    [title]="mapTitle()"
-    [subtitle]="mapSubtitle()"
+    title="Enter your PIN"
+    subtitle="Pick your four characters from the map to unlock."
     [characters]="charset()"
-    [confirmLabel]="mapConfirmLabel()"
+    [confirmLabel]="submitting() ? 'Unlocking…' : 'Unlock'"
     (completed)="onMapComplete($event)"
     (dismissed)="onMapDismiss()"
   />

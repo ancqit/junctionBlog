@@ -30,8 +30,81 @@
   font-size: 0.92rem;
 }
 
+.identity-fields {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.field > span {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.phone {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  border: 1px solid #d8dbd6;
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+.phone > span {
+  padding-left: 0.85rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.phone input {
+  border: 0;
+  box-shadow: none;
+}
+
+.pin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.hint {
+  margin: 0;
+  padding: 0.7rem 0.85rem;
+  border-radius: 0.65rem;
+  background: rgba(243, 215, 130, 0.28);
+  color: #3d5248;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.hint.muted {
+  background: rgba(25, 75, 49, 0.06);
+}
+
+.linkish {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #0f766e;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 .note--err {
   color: #b44136;
+}
+
+.muted {
+  color: #64748b;
 }
 
 .card h1 {
