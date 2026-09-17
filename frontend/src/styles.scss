@@ -20,6 +20,22 @@
   --radius: 0.9rem;
   --font-ui: 'DM Sans', 'Segoe UI', sans-serif;
   --font-display: Georgia, 'Times New Roman', serif;
+
+  /* Figma type + space scale — mobile-first, steps at 480 / 720 / 1024 */
+  --text-xs: 0.6875rem;
+  --text-sm: 0.75rem;
+  --text-md: 0.875rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.25rem;
+  --text-2xl: clamp(1.35rem, 1.1rem + 1.2vw, 1.75rem);
+  --text-display: clamp(1.5rem, 1.15rem + 2vw, 2.25rem);
+  --leading-tight: 1.2;
+  --leading-body: 1.5;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --page-pad-x: clamp(0.75rem, 2.5vw, 1.5rem);
+  --tap-min: 2.75rem;
 }
 
 *,
@@ -36,6 +52,8 @@ body {
 
 body {
   font-family: var(--font-ui);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
   color: var(--ink);
   background:
     radial-gradient(ellipse 90% 55% at 8% -10%, rgba(243, 215, 130, 0.35), transparent 55%),
@@ -43,6 +61,7 @@ body {
     linear-gradient(180deg, var(--paper) 0%, var(--paper-deep) 100%);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 h1,
@@ -50,6 +69,7 @@ h2 {
   font-family: var(--font-display);
   font-weight: 500;
   letter-spacing: -0.03em;
+  line-height: var(--leading-tight);
   color: var(--ink);
 }
 
@@ -68,9 +88,11 @@ select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-height: var(--tap-min);
   border: 0;
   border-radius: 999px;
-  padding: 0.72rem 1.2rem;
+  padding: 0.65rem 1.1rem;
+  font-size: var(--text-md);
   font-weight: 700;
   letter-spacing: 0.01em;
   cursor: pointer;
@@ -110,7 +132,7 @@ select {
 
 .kicker {
   margin: 0;
-  font-size: 0.72rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -123,7 +145,7 @@ select {
 }
 
 .field span {
-  font-size: 0.72rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -136,6 +158,7 @@ select {
   border: 1px solid var(--line-strong);
   border-radius: 0.75rem;
   padding: 0.75rem 0.85rem;
+  font-size: var(--text-base);
   background: var(--surface-solid);
   color: var(--ink);
 }
@@ -149,4 +172,40 @@ select {
 
 .muted {
   color: var(--mute);
+}
+
+@media (max-width: 480px) {
+  :root {
+    --text-base: 0.875rem;
+    --text-md: 0.8125rem;
+    --text-lg: 1rem;
+    --text-xl: 1.125rem;
+    --page-pad-x: 0.75rem;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 720px) {
+  :root {
+    --text-base: 0.9375rem;
+    --text-lg: 1.0625rem;
+    --text-xl: 1.2rem;
+  }
+}
+
+@media (min-width: 721px) and (max-width: 1023px) {
+  :root {
+    --text-base: 0.96875rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.35rem;
+    --page-pad-x: 1.15rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.4rem;
+    --page-pad-x: 1.5rem;
+  }
 }
