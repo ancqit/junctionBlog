@@ -14,6 +14,7 @@ export class AppComponent {
   private readonly router = inject(Router);
   readonly identity = inject(IdentityService);
   readonly unlocked = computed(() => this.auth.isAuthenticated());
+  readonly year = new Date().getFullYear();
 
   logout(): void {
     this.auth.logout();
