@@ -1,8 +1,8 @@
 <section class="entry">
-  <a class="back" routerLink="/">← Blogs</a>
+  <a class="back" routerLink="/">← Logs</a>
   @if (entry(); as item) {
     <header class="entry__head">
-      <p class="kicker">blog {{ item.blogNumber }}</p>
+      <p class="kicker">log {{ item.blogNumber }}</p>
       <h1>{{ item.junction }}</h1>
       <p class="meta">
         {{ item.nameTag }} · user {{ item.creatorNumber }}
@@ -120,9 +120,9 @@
     </section>
 
     <div class="create-footer">
-      <a class="btn btn-primary" routerLink="/create">Create a blog</a>
+      <a class="btn btn-primary" routerLink="/create">Create a log</a>
     </div>
   } @else {
-    <p>Blog not found.</p>
+    <p>Log not found.</p>
   }
 </section>
