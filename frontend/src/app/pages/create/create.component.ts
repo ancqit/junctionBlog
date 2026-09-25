@@ -170,7 +170,7 @@ export class CreateComponent implements OnInit {
   async submit(): Promise<void> {
     this.error.set('');
     if (!this.selectedCity || !this.selectedLocality) {
-      this.error.set('Pick a city and locality. This blog is for a junction.');
+      this.error.set('Pick a city and locality. This log is for a junction.');
       return;
     }
     const body = this.body.trim();

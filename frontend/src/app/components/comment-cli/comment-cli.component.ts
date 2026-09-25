@@ -29,7 +29,7 @@ export class CommentCliComponent {
   private pendingBody = '';
   readonly step = signal<Step>('idle');
   readonly log = signal<Line[]>([
-    { kind: 'sys', text: 'comment> enter name and number, then the comment. it is appended to this blog.' },
+    { kind: 'sys', text: 'comment> enter name and number, then the comment. it is appended to this log.' },
   ]);
 
   submit(): void {

@@ -3,10 +3,10 @@
     <p class="kicker">junction.today · junction.website</p>
     <h1>
       <span class="brand-word">Junction</span>
-      <span class="brand-sub">blog</span>
+      <span class="brand-sub">business log</span>
     </h1>
-    <p class="lede">Complaints and notes for a place. Search by junction, number, or nametag.</p>
-    <a class="btn btn-primary" routerLink="/create">Create a blog</a>
+    <p class="lede">Complaints and notes for a place — a business log. Search by junction, number, or nametag.</p>
+    <a class="btn btn-primary" routerLink="/create">Create a log</a>
   </header>
 
   @if (usingLocal) {
@@ -20,15 +20,15 @@
       name="query"
       [(ngModel)]="query"
       (ngModelChange)="applySearch()"
-      placeholder="Junction, blog number, or nametag"
+      placeholder="Junction, log number, or nametag"
     />
   </label>
 
   @if (!blogs().length) {
     <article class="card empty">
-      <h2>No blogs yet</h2>
-      <p class="muted">Create the first one for a junction.</p>
-      <a class="btn btn-primary" routerLink="/create">Create a blog</a>
+      <h2>No logs yet</h2>
+      <p class="muted">Create the first business log for a junction.</p>
+      <a class="btn btn-primary" routerLink="/create">Create a log</a>
     </article>
   } @else {
     <ul class="list">
@@ -46,7 +46,7 @@
       }
     </ul>
     <div class="create-footer">
-      <a class="btn btn-primary" routerLink="/create">Create a blog</a>
+      <a class="btn btn-primary" routerLink="/create">Create a log</a>
     </div>
   }
 </section>
