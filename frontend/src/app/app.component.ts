@@ -1,11 +1,12 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { CookieNoticeComponent } from './components/cookie-notice/cookie-notice.component';
 import { AuthService } from './core/auth.service';
 import { IdentityService } from './core/identity.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, CookieNoticeComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
